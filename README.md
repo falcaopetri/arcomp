@@ -6,6 +6,8 @@
 3. Mover o conteúdo de _C:\Irvine\MASM_ para _C:\Irvine_
 4. **(opcional)** Deletar os arquivos _C:\Irvine\cmd.exe.lnk_ e _C:\Irvine\asm32.bat_
 5. Clonar esse repositório em _C:\Irvine\arcomp_
-6. Invocar `asm32 FILE1 FILE2 ...`
+6. Invocar `asm32 main`
 
-Obs: `asm32 /D FILE1 FILE2 ...` também invoca o windbg, assim como nas aulas.
+Obs: `asm32 /D main` também invoca o windbg, assim como nas aulas.
+
+Obs 2: Para invocar o `asm32` sem a flag `/D` é necessário comentar a `int 3` no arquivo `main.asm`.
