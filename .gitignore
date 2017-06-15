@@ -1,0 +1,7 @@
+# todos os arquivos intermediários gerados pelo assembler
+*.exe
+*.ilk
+*.lst
+*.obj
+*.pdb
+*.sbr
