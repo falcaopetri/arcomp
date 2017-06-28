@@ -34,7 +34,9 @@ game_print ENDP
 ;;
 game_loop PROC
 MAIN_LOOP:
-    call game_print
+    
+    call atualizaTela
+    ;call game_print
 
     .if game_curr_state != GAME_STATE_QUIT
         jmp MAIN_LOOP
