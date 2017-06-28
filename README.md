@@ -11,3 +11,5 @@
 Obs: `asm32 /D main` também invoca o windbg, assim como nas aulas.
 
 Obs 2: Para invocar o `asm32` sem a flag `/D` é necessário comentar a `int 3` no arquivo `main.asm`.
+
+Obs 3: Para executar o jogo de duplo click no main.exe. Não abra pelo terminal o main.exe pois ele fica desconfigurado.
