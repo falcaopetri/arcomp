@@ -25,6 +25,39 @@ game_print PROC USES eax
     ret
 game_print ENDP
 
+leTecla PROC
+  ;lê a tecla
+    call readkey
+    jz nokey
+    push eax
+    push ecx
+    call ReadKeyflush
+    pop ecx
+    pop eax
+    ;TODO mudar para up e down
+        cmp ah, 75             
+            je SetaEsquerda
+        cmp ah, 77
+            je SetaDireita
+        jmp nokey
+
+;TODO mudar para up e down
+ SetaEsquerda: 
+    ;nave vai uma posição para a esquerda se não estiver do lado da parede
+    cmp naveY, 0
+        je nokey
+    dec naveX
+    jmp nokey
+  SetaDireita:
+    ;nave vai uma posição para a direita se não estiver do lado da parede
+    cmp naveY, 50
+        je nokey
+    inc naveX
+    jmp nokey
+   
+  nokey:      
+    ret
+leTecla ENDP
 
 ;;
 ; Invoca a sequência de funções do loop principal
@@ -36,6 +69,7 @@ game_loop PROC
 MAIN_LOOP:
     
     call atualizaTela
+    call leTecla
     ;call game_print
 
     .if game_curr_state != GAME_STATE_QUIT

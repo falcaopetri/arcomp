@@ -366,6 +366,7 @@ instrucao ENDP
     mov ebx, 0
 
     mov esi, 0
+    ;11 é o tamanho da string nv1,2,3...
     mov ecx, 11
 L1:
     mov bl, nv1[esi]
