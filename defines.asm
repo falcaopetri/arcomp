@@ -1,5 +1,6 @@
 GAME_STATE_QUIT = 1                          ; encerrar o jogo
 GAME_STATE_MENU_MAIN = 2                     ; mostrar menu principal
+GAME_STATE_PLAYING = 3                     ; jogando
 
 COLS = 80               ; number of columns
 ROWS = 25               ; number of rows
@@ -9,7 +10,7 @@ DELAY_BETWEEN_FRAMES = 250
 
 .data
 
-game_curr_state DWORD GAME_STATE_MENU_MAIN
+game_curr_state DWORD GAME_STATE_PLAYING
 
 console HANDLE 0
 buffer CHAR_INFO ROWS * COLS DUP(<<'-'>, CHAR_ATTRIBUTE>)
@@ -21,9 +22,6 @@ x DWORD 0               ; current position
 y DWORD 2               ; of the figure
 character WORD '0'      ; filled with this symbol
 
-;Tela do jogo
-telaJogo BYTE 2000 dup (" ") ;25*80
-
 ;variaveis da nave
 ;esta invertido 
 vida BYTE 39h, 0
@@ -31,11 +29,13 @@ naveX BYTE 10
 naveY BYTE 1
 
 ;desenho da nave
-	nv1 BYTE "      |\   ", 0
-	nv2 BYTE "  |\  | \  ", 0 
-	nv3 BYTE "  |===== )>", 0
-	nv4 BYTE "  |/  | /  ", 0
-	nv5 BYTE "      |/   ", 0
+nave_curr_pos COORD <1, 10>
+nave_dimension COORD <9, 5>
+nave BYTE 	"    |\   ",
+			"|\  | \  ",
+			"|===== )>",
+			"|/  | /  ",
+			"    |/   "
 
 
 ;Intro
