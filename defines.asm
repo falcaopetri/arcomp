@@ -6,10 +6,12 @@ COLS = 80               ; number of columns
 ROWS = 25               ; number of rows
 CHAR_ATTRIBUTE = 0Fh    ; bright white foreground
 
-DELAY_BETWEEN_FRAMES = 30
+DELAY_BETWEEN_FRAMES = 50
+DELAY_BETWEEN_SPAWNS = 700
 
 .data
 
+last_spawn DWORD 0
 game_curr_state DWORD GAME_STATE_PLAYING
 
 console HANDLE 0

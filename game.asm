@@ -71,20 +71,26 @@ leTecla PROC
     ret
 leTecla ENDP
 
-criaInimigo PROC
+criaInimigo PROC USES ecx eax edx
     movzx ecx, numInimigos
-    .if ecx < NUM_MAX_INIMIGOS
-        ;todo setar linhas fixas
-        call Randomize
-        mov  eax, 19
-        call RandomRange ;
-        inc  eax         
+    call GetMseconds
+    mov edx, eax
+    sub eax, last_spawn
+    .if ecx < NUM_MAX_INIMIGOS 
+        .if eax > DELAY_BETWEEN_SPAWNS
+            mov last_spawn, edx
+            ;todo setar linhas fixas
+            call Randomize
+            mov  eax, 19
+            call RandomRange ;
+            inc  eax         
 
-        mov (COORD PTR inimigo_curr_pos[ecx * TYPE COORD]).X, 60 
-        ; coloca em uma posicao aleatória da tela
-        mov (COORD PTR inimigo_curr_pos[ecx * TYPE COORD]).Y, ax 
+            mov (COORD PTR inimigo_curr_pos[ecx * TYPE COORD]).X, 60 
+            ; coloca em uma posicao aleatória da tela
+            mov (COORD PTR inimigo_curr_pos[ecx * TYPE COORD]).Y, ax 
 
-        inc numInimigos
+            inc numInimigos
+        .endif
     .endif
     ret
 criaInimigo ENDP
