@@ -64,6 +64,9 @@ intro_img3 BYTE "               PRESSIONE ENTER PARA CONTINUAR                  
 				"                                                     Antonio   ",
 				"                                                  Jose Vitor   ",
 				"                                                      Thiago   "
+intro_color1 WORD 4 DUP(63 DUP(0004h))
+intro_color2 WORD 4 DUP(63 DUP(0004h))
+intro_color3 WORD 4 DUP(63 DUP(0007h))
 
 ;!!!!TODO!!!!! instruções 
 ; desenho das instruções
