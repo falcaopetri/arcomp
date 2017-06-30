@@ -112,6 +112,9 @@ desenhaInimigo PROC
     mov esi, 0
 L1:
     INVOKE insertRegionIntoBuffer, OFFSET inimigo, inimigo_dimension, inimigo_curr_pos[esi]
+    mov ax, inimigo_curr_pos[esi].X
+    dec ax
+    mov inimigo_curr_pos[esi].X, ax
     inc esi
     loop L1
 fim:

@@ -51,6 +51,7 @@ leTecla PROC
     mov ax, nave_curr_pos.Y
     dec ax
     mov nave_curr_pos.Y, ax
+     call criaInimigo
     jmp nokey
 
   SetaDireita:
@@ -104,7 +105,7 @@ game_loop PROC
 MAIN_LOOP:
     
     call atualizaTela
-    call criaInimigo
+   
     call leTecla
     call game_print
 
