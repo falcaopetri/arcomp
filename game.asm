@@ -51,6 +51,7 @@ leTecla PROC
     mov ax, nave_curr_pos.Y
     dec ax
     mov nave_curr_pos.Y, ax
+     call criaInimigo
     jmp nokey
 
   SetaDireita:
@@ -67,6 +68,24 @@ leTecla PROC
     ret
 leTecla ENDP
 
+criaInimigo PROC
+    movzx ecx, numInimigos
+    .if ecx < NUM_MAX_INIMIGOS
+        ; TODO setar 3 Ys fixos
+        call Randomize
+        mov  eax, 19     ;get random 0 to 50
+        call RandomRange ;
+        inc  eax         ;make range 1 to 20
+
+        mov (COORD PTR inimigo_curr_pos[ecx * TYPE COORD]).X, 60 
+        ; coloca em uma posicao aleatória da tela
+        mov (COORD PTR inimigo_curr_pos[ecx * TYPE COORD]).Y, ax 
+
+        inc numInimigos
+    .endif
+    ret
+criaInimigo ENDP
+
 ;;
 ; Invoca a sequência de funções do loop principal
 ; enquanto game_curr_state não for definido como
@@ -74,11 +93,14 @@ leTecla ENDP
 ; @param game_curr_state - variável global
 ;;
 game_loop PROC
+
 MAIN_LOOP:
     
     call atualizaTela
+   
     call leTecla
     call game_print
+
 
     .if game_curr_state != GAME_STATE_QUIT
         jmp MAIN_LOOP

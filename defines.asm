@@ -37,8 +37,13 @@ nave BYTE 	"    |\   ",
 			"|/  | /  ",
 			"    |/   "
 
+
 ;desenho do inimigo
-inimigo_curr_pos COORD <60, 10>
+;variaveis dos inimigos
+numInimigos BYTE 0
+NUM_MAX_INIMIGOS = 3
+inimigo_curr_pos COORD NUM_MAX_INIMIGOS DUP (<20,20>)
+
 inimigo_dimension COORD <9, 5>
 inimigo BYTE 	"   /|    ",
 				"  / |  /|",
