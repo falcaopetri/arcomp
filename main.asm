@@ -11,8 +11,9 @@ main PROC
 	call desenhaIntro
 	call game_print
 	call readInt ; esperar enter
-	
-	call instrucao
+
+	call desenhaInstrucao
+	call game_print
 	call readInt ; esperar enter
 
 	call ClrScr
