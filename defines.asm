@@ -37,7 +37,14 @@ nave BYTE 	"    |\   ",
 			"|/  | /  ",
 			"    |/   "
 
-
+;desenho do inimigo
+inimigo_curr_pos COORD <20, 10>
+inimigo_dimension COORD <9, 5>
+inimigo BYTE 	"   /|    ",
+				"  / |  /|",
+				"<( =====|",
+				"  \ |  \|",
+				"   \|    "
 ;Intro
 
 	A1 BYTE "                                                                          ", 0Dh, 0Ah, 0  ;
@@ -54,6 +61,11 @@ nave BYTE 	"    |\   ",
 	A12 BYTE "                                                             Jose Vitor  ", 0Dh, 0Ah, 0  ;
 	A13 BYTE "                                                                 Thiago  ", 0Dh, 0Ah, 0  ;
 
+intro_curr_pos COORD <1, 1>
+intro_dimension COORD <74, 3>
+intro_img BYTE "     #######     #####    #######   #########   ###     ###   ######      ",
+			   "    #       #    #    #   #         #       #   #  #   #  #   #    #      ",
+			   "    #       #    #    #   #         #       #   #   # #   #   #    #      "
 
 ; _________ Variáveis para linhas em comum _________
 	PL BYTE " * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * ", 0Dh, 0Ah, 0  ;Primeira Linha

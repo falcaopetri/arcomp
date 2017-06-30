@@ -30,7 +30,7 @@ ONELINE:
     mov ecx, 10
 
 ONECHAR:
-    INVOKE CharToBuffer, eax, edx, character
+    ;INVOKE CharToBuffer, eax, edx, character
     inc eax
     loop ONECHAR    ; inner loop prints characters
 
@@ -393,6 +393,20 @@ desenhaNave PROC
     ret
 desenhaNave ENDP
 
+
+;DESENHA NAVE
+desenhaInimigo PROC
+    INVOKE insertRegionIntoBuffer, OFFSET inimigo, inimigo_dimension, inimigo_curr_pos
+    ret
+desenhaInimigo ENDP
+
+;DESENHA INTRO
+desenhaIntro PROC
+    INVOKE insertRegionIntoBuffer, OFFSET intro_img, intro_dimension, intro_curr_pos
+    ret
+desenhaIntro ENDP
+
+
 ; Atualiza tela
 atualizaTela PROC
     mov edx, 0
@@ -400,7 +414,7 @@ atualizaTela PROC
     
     call ClearBuffer
     call desenhaNave
-    ;call desenhaInimigo
+    call desenhaInimigo
     ;call desenhaMoldura
  
     ret

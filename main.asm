@@ -4,7 +4,10 @@ INCLUDE game.asm
 .code
 main PROC
 	;int 3	
+
 	call intro
+	;call desenhaIntro
+	;game_print
 	call readInt ; esperar enter
 	call instrucao
 	call readInt ; esperar enter

@@ -48,13 +48,19 @@ leTecla PROC
     ;nave vai uma posição para a esquerda se não estiver do lado da parede
     cmp naveY, 0
         je nokey
-    dec naveX
+    mov ax, nave_curr_pos.Y
+    dec ax
+    mov nave_curr_pos.Y, ax
     jmp nokey
+
   SetaDireita:
     ;nave vai uma posição para a direita se não estiver do lado da parede
     cmp naveY, 50
         je nokey
-    inc naveX
+    mov ax, nave_curr_pos.Y
+    inc ax
+    mov nave_curr_pos.Y, ax
+    
     jmp nokey
    
   nokey:      
