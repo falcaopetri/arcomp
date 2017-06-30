@@ -6,11 +6,12 @@ main PROC
 	;int 3	
 
 	call game_setup
+	call ClearBuffer
 	
 	call desenhaIntro
 	call game_print
-
 	call readInt ; esperar enter
+	
 	call instrucao
 	call readInt ; esperar enter
 
