@@ -69,29 +69,21 @@ leTecla PROC
 leTecla ENDP
 
 criaInimigo PROC
-
     movzx ecx, numInimigos
-    movzx edx, numMaxInimigos
-    cmp ecx, edx
-    je fim
-    ;TODO setar 3 Ys fixos
-    call Randomize
-    mov  eax, 19     ;get random 0 to 50
-    call RandomRange ;
-    inc  eax         ;make range 1 to 20
+    .if ecx < NUM_MAX_INIMIGOS
+        ; TODO setar 3 Ys fixos
+        call Randomize
+        mov  eax, 19     ;get random 0 to 50
+        call RandomRange ;
+        inc  eax         ;make range 1 to 20
 
-    ;mov inimigo_curr_pos[ecx].X, 60
-    mov (COORD PTR inimigo_curr_pos[ecx]).X,60 
-    ;coloca em uma posicao aleatória da tela
-    ;mov inimigo_curr_pos[ecx].Y, ax
-    mov (COORD PTR inimigo_curr_pos[ecx]).Y,ax 
+        mov (COORD PTR inimigo_curr_pos[ecx * TYPE COORD]).X, 60 
+        ; coloca em uma posicao aleatória da tela
+        mov (COORD PTR inimigo_curr_pos[ecx * TYPE COORD]).Y, ax 
 
-    inc numInimigos
-
-    fim:
-
+        inc numInimigos
+    .endif
     ret
-
 criaInimigo ENDP
 
 ;;

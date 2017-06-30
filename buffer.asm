@@ -104,18 +104,15 @@ desenhaNave ENDP
 
 
 ;DESENHA NAVE
-desenhaInimigo PROC
-
+desenhaInimigo PROC USES ecx esi eax
     movzx ecx, numInimigos
     cmp ecx, 0
     je fim
     mov esi, 0
 L1:
     INVOKE insertRegionIntoBuffer, OFFSET inimigo, inimigo_dimension, inimigo_curr_pos[esi]
-    mov ax, inimigo_curr_pos[esi].X
-    dec ax
-    mov inimigo_curr_pos[esi].X, ax
-    inc esi
+    dec inimigo_curr_pos[esi].X
+    add esi, TYPE COORD
     loop L1
 fim:
 
