@@ -396,7 +396,17 @@ desenhaNave ENDP
 
 ;DESENHA NAVE
 desenhaInimigo PROC
-    INVOKE insertRegionIntoBuffer, OFFSET inimigo, inimigo_dimension, inimigo_curr_pos
+
+    movzx ecx, numInimigos
+    cmp ecx, 0
+    je fim
+    mov esi, 0
+L1:
+    INVOKE insertRegionIntoBuffer, OFFSET inimigo, inimigo_dimension, inimigo_curr_pos[esi]
+    inc esi
+    loop L1
+fim:
+
     ret
 desenhaInimigo ENDP
 
