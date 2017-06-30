@@ -3,7 +3,7 @@ INCLUDE game.asm
 
 .code
 main PROC
-	
+	;int 3	
 	call intro
 	call readInt ; esperar enter
 	call instrucao

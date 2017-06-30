@@ -12,17 +12,6 @@ BLANKS:
     ret       
 ClearBuffer ENDP
 
-
-CharToBuffer PROC USES eax edx bufx:DWORD, bufy:DWORD, char:WORD 
-    mov eax, bufy
-    mov edx, COLS
-    mul edx
-    add eax, bufx
-    mov dx, char
-    mov buffer[eax * CHAR_INFO].Char, dx
-    ret
-CharToBuffer ENDP
-
 ;;
 ; Dá fill no buffer com o conteúdo do menu MAIN
 ; @param game_curr_state - variável global
@@ -354,74 +343,65 @@ instrucao PROC
     ret
 instrucao ENDP
 
-;DESENHA NAVE
+insertStringIntoBuffer PROC USES ecx esi eax ebx edi string:PTR BYTE, len:WORD, start:COORD
+    cld
+    movzx ecx, len
+    mov esi, string
 
-    desenhaNave PROC
-    ;desenha a nave na posição atual
-    movzx eax, naveX
-    mov ebx, 80
-    mul ebx
-    movzx ebx, naveY
+    movzx eax, start.Y
+    imul eax, 80
+    movzx ebx, start.X
     add eax, ebx
-    mov ebx, 0
+    imul eax, TYPE CHAR_INFO
+    lea edi, buffer[eax]
 
-    mov esi, 0
-    ;11 é o tamanho da string nv1,2,3...
-    mov ecx, 11
 L1:
-    mov bl, nv1[esi]
-    mov bh, nv2[esi]
-    mov dl, nv3[esi]
-    mov dh, nv4[esi]
-    mov telaJogo[eax], bl
-    push eax
-    add eax, 80
-    mov telaJogo[eax], bh
-    add eax, 80
-    mov telaJogo[eax], dl
-    add eax, 80
-    mov telaJogo[eax], dh
-    
-    mov bl, nv5[esi]
-    add eax, 80
-    mov telaJogo[eax], bl
-
-    pop eax
-    inc esi
-    inc eax
+    movzx ax, BYTE PTR [esi]
+    mov (CHAR_INFO PTR [edi]).Char, ax
+    add esi, TYPE BYTE
+    add edi, TYPE CHAR_INFO
     loop L1
-    
     ret
+insertStringIntoBuffer ENDP
 
+; Insere região no buffer
+insertRegionIntoBuffer PROC USES eax esi ecx string:PTR BYTE, dimension:COORD, start:COORD
+    LOCAL curr:COORD
+    ; curr <- start
+    mov ax, start.X
+    mov curr.X, ax
+    mov ax, start.Y
+    mov curr.Y, ax
+    
+    mov esi, string
+    movzx eax, dimension.X
+    ; for i in range(0, dimension.Y):
+    movzx ecx, dimension.Y
+    ; insere cada linha do desenho na posição adequada no buffer
+EACH_LINE:
+    INVOKE insertStringIntoBuffer, esi, dimension.X, curr
+    inc curr.Y
+    add esi, eax
+    loop EACH_LINE
+
+    ret
+insertRegionIntoBuffer ENDP
+
+;DESENHA NAVE
+desenhaNave PROC
+    INVOKE insertRegionIntoBuffer, OFFSET nave, nave_dimension, nave_curr_pos
+    ret
 desenhaNave ENDP
-
-;Limpa Tela
-limpaTela PROC
-    mov ecx, 2000
-    mov esi, 0
-L1:
-    mov telaJogo[esi], " "
-    inc esi
-    loop L1
-
-    ret
-
-limpaTela ENDP
 
 ; Atualiza tela
 atualizaTela PROC
     mov edx, 0
     call gotoXY
     
-    call limpaTela
+    call ClearBuffer
     call desenhaNave
     ;call desenhaInimigo
     ;call desenhaMoldura
-
-    mov edx, OFFSET telaJogo
-    call WriteString
-
  
     ret
-
 atualizaTela ENDP

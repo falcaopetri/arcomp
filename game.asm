@@ -17,9 +17,11 @@ game_setup ENDP
 ; @param game_curr_state - variável global
 ;;
 game_print PROC USES eax
-    .if game_curr_state == GAME_STATE_MENU_MAIN
-        call buffer_fill_menu_main
-    .endif
+    ;.if game_curr_state == GAME_STATE_MENU_MAIN
+    ;    call buffer_fill_menu_main
+    ;.if game_curr_state == GAME_STATE_PLAYING
+    ;    call buffer_fill_playing
+    ;.endif
 
     call buffer_print
     ret
@@ -70,7 +72,7 @@ MAIN_LOOP:
     
     call atualizaTela
     call leTecla
-    ;call game_print
+    call game_print
 
     .if game_curr_state != GAME_STATE_QUIT
         jmp MAIN_LOOP
