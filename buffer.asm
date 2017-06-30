@@ -113,6 +113,8 @@ L1:
     INVOKE insertRegionIntoBuffer, OFFSET inimigo, inimigo_dimension, inimigo_curr_pos[esi]
     dec inimigo_curr_pos[esi].X
     add esi, TYPE COORD
+
+    
     loop L1
 fim:
 

@@ -27,6 +27,9 @@ game_print PROC USES eax
     ret
 game_print ENDP
 
+
+
+
 leTecla PROC
   ;lê a tecla
     call readkey
@@ -51,7 +54,7 @@ leTecla PROC
     mov ax, nave_curr_pos.Y
     dec ax
     mov nave_curr_pos.Y, ax
-     call criaInimigo
+     
     jmp nokey
 
   SetaDireita:
@@ -71,11 +74,11 @@ leTecla ENDP
 criaInimigo PROC
     movzx ecx, numInimigos
     .if ecx < NUM_MAX_INIMIGOS
-        ; TODO setar 3 Ys fixos
+        ;todo setar linhas fixas
         call Randomize
-        mov  eax, 19     ;get random 0 to 50
+        mov  eax, 19
         call RandomRange ;
-        inc  eax         ;make range 1 to 20
+        inc  eax         
 
         mov (COORD PTR inimigo_curr_pos[ecx * TYPE COORD]).X, 60 
         ; coloca em uma posicao aleatória da tela
@@ -85,6 +88,38 @@ criaInimigo PROC
     .endif
     ret
 criaInimigo ENDP
+
+;COLISAO
+verificaColisao PROC
+;COLISAO INIMIGO {
+
+    ;colisao parede
+    movzx ecx, numInimigos
+    .if ecx > 0
+        
+        mov esi, 0
+        L1:
+        cmp inimigo_curr_pos[esi * TYPE COORD].X, 0
+            jne inimigoSemColisao
+        
+        ;inimigo colidiu com a parede    
+        movzx edx, numInimigos
+        dec edx
+        mov ax, inimigo_curr_pos[edx  * TYPE COORD].X
+        mov inimigo_curr_pos[esi  * TYPE COORD].X , ax
+        mov ax, inimigo_curr_pos[edx  * TYPE COORD].Y
+        mov inimigo_curr_pos[esi  * TYPE COORD].Y , ax
+        dec numInimigos
+
+        inimigoSemColisao:
+        inc esi
+        loop L1
+
+;}
+
+    .endif
+    ret
+verificaColisao ENDP
 
 ;;
 ; Invoca a sequência de funções do loop principal
@@ -97,7 +132,9 @@ game_loop PROC
 MAIN_LOOP:
     
     call atualizaTela
-   
+    ;TODO colocar pausa para criar inimigo, n da para criar qd bate na parede pq vai ter sempre 1
+    call criaInimigo
+    call verificaColisao
     call leTecla
     call game_print
 
