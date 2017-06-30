@@ -46,7 +46,7 @@ leTecla PROC
 ;TODO mudar para up e down
  SetaEsquerda: 
     ;nave vai uma posição para a esquerda se não estiver do lado da parede
-    cmp naveY, 0
+    cmp  nave_curr_pos.Y, 0
         je nokey
     mov ax, nave_curr_pos.Y
     dec ax
@@ -55,7 +55,7 @@ leTecla PROC
 
   SetaDireita:
     ;nave vai uma posição para a direita se não estiver do lado da parede
-    cmp naveY, 50
+    cmp nave_curr_pos.Y, 20
         je nokey
     mov ax, nave_curr_pos.Y
     inc ax

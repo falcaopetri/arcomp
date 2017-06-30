@@ -6,7 +6,7 @@ COLS = 80               ; number of columns
 ROWS = 25               ; number of rows
 CHAR_ATTRIBUTE = 0Fh    ; bright white foreground
 
-DELAY_BETWEEN_FRAMES = 250
+DELAY_BETWEEN_FRAMES = 30
 
 .data
 
@@ -38,7 +38,7 @@ nave BYTE 	"    |\   ",
 			"    |/   "
 
 ;desenho do inimigo
-inimigo_curr_pos COORD <20, 10>
+inimigo_curr_pos COORD <60, 10>
 inimigo_dimension COORD <9, 5>
 inimigo BYTE 	"   /|    ",
 				"  / |  /|",
