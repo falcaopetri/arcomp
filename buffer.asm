@@ -402,7 +402,10 @@ desenhaInimigo ENDP
 
 ;DESENHA INTRO
 desenhaIntro PROC
-    INVOKE insertRegionIntoBuffer, OFFSET intro_img, intro_dimension, intro_curr_pos
+    call ClearBuffer
+    INVOKE insertRegionIntoBuffer, OFFSET intro_img1, intro_dimension, intro_pos1
+    INVOKE insertRegionIntoBuffer, OFFSET intro_img2, intro_dimension, intro_pos2
+    INVOKE insertRegionIntoBuffer, OFFSET intro_img3, intro_dimension, intro_pos3
     ret
 desenhaIntro ENDP
 

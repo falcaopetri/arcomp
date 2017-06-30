@@ -6,7 +6,7 @@ COLS = 80               ; number of columns
 ROWS = 25               ; number of rows
 CHAR_ATTRIBUTE = 0Fh    ; bright white foreground
 
-DELAY_BETWEEN_FRAMES = 250
+DELAY_BETWEEN_FRAMES = 100
 
 .data
 
@@ -37,7 +37,7 @@ nave BYTE 	"    |\   ",
 			"|/  | /  ",
 			"    |/   "
 
-;desenho do inimigo
+; desenho do inimigo
 inimigo_curr_pos COORD <20, 10>
 inimigo_dimension COORD <9, 5>
 inimigo BYTE 	"   /|    ",
@@ -45,27 +45,25 @@ inimigo BYTE 	"   /|    ",
 				"<( =====|",
 				"  \ |  \|",
 				"   \|    "
-;Intro
 
-	A1 BYTE "                                                                          ", 0Dh, 0Ah, 0  ;
-	A2 BYTE "     #######     #####    #######   #########   ###     ###   ######      ", 0Dh, 0Ah, 0  ;
-	A3 BYTE "    #       #    #    #   #         #       #   #  #   #  #   #    #      ", 0Dh, 0Ah, 0  ;
-	A4 BYTE "    #       #    #    #   #         #       #   #   # #   #   #    #      ", 0Dh, 0Ah, 0  ;
-	A5 BYTE "    #       #    #   #    #         #       #   #    #    #   #    #      ", 0Dh, 0Ah, 0  ;
-	A6 BYTE "    #########    ####     #         #       #   #    #    #   #####       ", 0Dh, 0Ah, 0  ;
-	A7 BYTE "    #       #    #  #     #         #       #   #         #   #           ", 0Dh, 0Ah, 0  ;
-	A8 BYTE "    #       #    #   #    #         #       #   #         #   #           ", 0Dh, 0Ah, 0  ;
-	A9 BYTE "    #       #    #    #   #######   #########   #         #   #           ", 0Dh, 0Ah, 0  ;
-	A10 BYTE "                     PRESSIONE ENTER PARA CONTINUAR                      ", 0Dh, 0Ah, 0  ;
-	A11 BYTE "                                                                Antonio  ", 0Dh, 0Ah, 0  ;
-	A12 BYTE "                                                             Jose Vitor  ", 0Dh, 0Ah, 0  ;
-	A13 BYTE "                                                                 Thiago  ", 0Dh, 0Ah, 0  ;
-
-intro_curr_pos COORD <1, 1>
-intro_dimension COORD <74, 3>
-intro_img BYTE "     #######     #####    #######   #########   ###     ###   ######      ",
-			   "    #       #    #    #   #         #       #   #  #   #  #   #    #      ",
-			   "    #       #    #    #   #         #       #   #   # #   #   #    #      "
+; desenho da intro
+; dividida em 3 parte por causa de uma limitação do MASM: [ML Nonfatal Error A2039](https://docs.microsoft.com/en-us/cpp/assembler/masm/ml-nonfatal-error-a2039)
+intro_pos1 COORD <5, 4>
+intro_pos2 COORD <5, 8>
+intro_pos3 COORD <5, 15>
+intro_dimension COORD <63, 4>
+intro_img1 BYTE	" #######    #####    #######   #########   ###     ###   ######",
+				"#       #   #    #   #         #       #   #  #   #  #   #    #",
+				"#       #   #    #   #         #       #   #   # #   #   #    #",
+				"#       #   #   #    #         #       #   #    #    #   #    #"
+intro_img2 BYTE	"#########   ####     #         #       #   #         #   ##### ",
+				"#       #   #  #     #         #       #   #         #   #     ",
+				"#       #   #   #    #         #       #   #         #   #     ",
+				"#       #   #    #   #######   #########   #         #   #     "
+intro_img3 BYTE "               PRESSIONE ENTER PARA CONTINUAR                  ",
+				"                                                     Antonio   ",
+				"                                                  Jose Vitor   ",
+				"                                                      Thiago   "
 
 ; _________ Variáveis para linhas em comum _________
 	PL BYTE " * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * ", 0Dh, 0Ah, 0  ;Primeira Linha
