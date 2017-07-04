@@ -96,13 +96,12 @@ criaInimigo PROC USES ecx eax edx
 criaInimigo ENDP
 
 ;COLISAO
-verificaColisao PROC
-;COLISAO INIMIGO {
+verificaColisaoParede PROC
 
-    ;colisao parede
-    movzx ecx, numInimigos
-    .if ecx > 0
-        
+		 movzx ecx, numInimigos
+		.if ecx > 0
+;COLISAO INIMIGO_PAREDE {
+     
         mov esi, 0
         L1:
         cmp inimigo_curr_pos[esi * TYPE COORD].X, 0
@@ -125,7 +124,53 @@ verificaColisao PROC
 
     .endif
     ret
-verificaColisao ENDP
+verificaColisaoParede ENDP
+
+
+verificaColisaoJogador PROC
+		movzx ecx, numInimigos
+		.if ecx > 0
+;COLISAO INIMIGO_JOGADOR {  
+        mov esi, 0
+        L2:
+		mov ax, nave_curr_pos.X
+		mov bx, nave_curr_pos.Y
+		
+		;cmp ax, inimigo_curr_pos[esi  * TYPE COORD].X 
+        ;    jb inimigoSemColisao2
+		add ax, nave_dimension.X
+		cmp ax, inimigo_curr_pos[esi  * TYPE COORD].X
+            jb inimigoSemColisao2
+			
+		mov dx, inimigo_curr_pos[esi  * TYPE COORD].Y
+		add dx, inimigo_dimension.Y
+		dec dx
+		cmp bx,dx
+            ja inimigoSemColisao2
+			
+		add bx, nave_dimension.Y		
+        cmp bx, inimigo_curr_pos[esi  * TYPE COORD].Y
+            jb inimigoSemColisao2
+		
+		
+        
+        ;inimigo colidiu com a jogador    
+        movzx edx, numInimigos
+        dec edx
+        mov ax, inimigo_curr_pos[edx  * TYPE COORD].X
+        mov inimigo_curr_pos[esi  * TYPE COORD].X , ax
+        mov ax, inimigo_curr_pos[edx  * TYPE COORD].Y
+        mov inimigo_curr_pos[esi  * TYPE COORD].Y , ax
+        dec numInimigos
+
+        inimigoSemColisao2:
+        inc esi
+        loop L2
+
+;}
+		.endif
+			ret
+verificaColisaoJogador ENDP
 
 ;;
 ; Invoca a sequência de funções do loop principal
@@ -140,7 +185,8 @@ MAIN_LOOP:
     call atualizaTela
     ;TODO colocar pausa para criar inimigo, n da para criar qd bate na parede pq vai ter sempre 1
     call criaInimigo
-    call verificaColisao
+    call verificaColisaoParede
+	call verificaColisaoJogador
     call leTecla
     call game_print
 

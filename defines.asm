@@ -46,12 +46,14 @@ numInimigos BYTE 0
 NUM_MAX_INIMIGOS = 3
 inimigo_curr_pos COORD NUM_MAX_INIMIGOS DUP (<20,20>)
 
-inimigo_dimension COORD <9, 5>
-inimigo BYTE 	"   /|    ",
-				"  / |  /|",
-				"<( =====|",
-				"  \ |  \|",
-				"   \|    "
+inimigo_dimension COORD <11, 6>
+inimigo BYTE 	"   _..._   ",
+				" .'   - `. ",
+				":  o      :",
+				":       O :",
+				"`.    .  .'",
+				"  `-...-'  "
+
 
 ; desenho da intro
 ; dividida em 3 parte por causa de uma limitação do MASM: [ML Nonfatal Error A2039](https://docs.microsoft.com/en-us/cpp/assembler/masm/ml-nonfatal-error-a2039)
