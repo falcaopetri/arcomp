@@ -167,7 +167,7 @@ atualizaTela PROC
     .if game_curr_state == GAME_STATE_PLAYING
         call desenhaInimigo
     .elseif game_curr_state == GAME_STATE_STAR
-        call desenhaEstrelas
+       call desenhaEstrelas
     .endif
     ;call desenhaMoldura
  

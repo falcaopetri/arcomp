@@ -109,41 +109,50 @@ criaInimigo PROC USES ecx eax edx
     ret
 criaInimigo ENDP
 
+removeInimigo PROC USES edx esi eax, idx:DWORD
+    movzx edx, numInimigos
+    mov esi, idx
+    dec edx
+    mov ax, inimigo_curr_pos[edx  * TYPE COORD].X
+    mov inimigo_curr_pos[esi  * TYPE COORD].X , ax
+    mov ax, inimigo_curr_pos[edx  * TYPE COORD].Y
+    mov inimigo_curr_pos[esi  * TYPE COORD].Y , ax
+    dec numInimigos
+    dec game_level_remaining_enemies
+
+    ret
+removeInimigo ENDP
+
 ;COLISAO
-verificaColisaoParede PROC
-
-		 movzx ecx, numInimigos
-		.if ecx > 0
-;COLISAO INIMIGO_PAREDE {
-     
+; ebx = 0 se não teve colisão
+; ebx = 1 retorna em eax o índice da colisão
+verificaColisaoParede PROC USES ecx esi, array:DWORD, len:DWORD
+    mov ecx, len
+    mov ebx, 0
+    mov eax, array
+    .if ecx > 0
         mov esi, 0
-        L1:
-        cmp inimigo_curr_pos[esi * TYPE COORD].X, 0
-            jne inimigoSemColisao
-        
-        ;inimigo colidiu com a parede    
-        movzx edx, numInimigos
-        dec edx
-        mov ax, inimigo_curr_pos[edx  * TYPE COORD].X
-        mov inimigo_curr_pos[esi  * TYPE COORD].X , ax
-        mov ax, inimigo_curr_pos[edx  * TYPE COORD].Y
-        mov inimigo_curr_pos[esi  * TYPE COORD].Y , ax
-        dec numInimigos
-        dec game_level_remaining_enemies
-
-        inimigoSemColisao:
+    L1:
+        cmp (COORD PTR [eax + esi * TYPE COORD]).X, 0
+        jne inimigoSemColisao
+        mov eax, esi
+        mov ebx, 1
+        jmp QUIT
+    inimigoSemColisao:
         inc esi
         loop L1
-
-;}
-
     .endif
+    QUIT:
     ret
 verificaColisaoParede ENDP
 
-
-verificaColisaoJogador PROC
-		movzx ecx, numInimigos
+;COLISAO
+; ebx = 0 se não teve colisão
+; ebx = 1 retorna em eax o índice da colisão
+verificaColisaoJogador PROC USES ecx esi edx, array:DWORD, len:DWORD
+    mov ecx, len
+    mov ebx, 0
+    mov edx, array
 		.if ecx > 0
 ;COLISAO INIMIGO_JOGADOR {  
         mov esi, 0
@@ -151,32 +160,26 @@ verificaColisaoJogador PROC
 		mov ax, nave_curr_pos.X
 		mov bx, nave_curr_pos.Y
 		
-		;cmp ax, inimigo_curr_pos[esi  * TYPE COORD].X 
+		;cmp ax, (COORD PTR [edx + esi * TYPE COORD]).X 
         ;    jb inimigoSemColisao2
 		add ax, nave_dimension.X
-		cmp ax, inimigo_curr_pos[esi  * TYPE COORD].X
+		cmp ax, (COORD PTR [edx + esi * TYPE COORD]).X
             jb inimigoSemColisao2
 			
-		mov dx, inimigo_curr_pos[esi  * TYPE COORD].Y
-		add dx, inimigo_dimension.Y
-		dec dx
-		cmp bx,dx
+		mov ax, (COORD PTR [edx + esi * TYPE COORD]).Y
+		add ax, inimigo_dimension.Y
+		dec ax
+		cmp bx,ax
             ja inimigoSemColisao2
 			
 		add bx, nave_dimension.Y		
-        cmp bx, inimigo_curr_pos[esi  * TYPE COORD].Y
+        cmp bx, (COORD PTR [edx + esi * TYPE COORD]).Y
             jb inimigoSemColisao2
 		
 		
-        
-        ;inimigo colidiu com a jogador    
-        movzx edx, numInimigos
-        dec edx
-        mov ax, inimigo_curr_pos[edx  * TYPE COORD].X
-        mov inimigo_curr_pos[esi  * TYPE COORD].X , ax
-        mov ax, inimigo_curr_pos[edx  * TYPE COORD].Y
-        mov inimigo_curr_pos[esi  * TYPE COORD].Y , ax
-        dec numInimigos
+        mov eax, esi
+        mov ebx, 1
+        jmp QUIT
 
         inimigoSemColisao2:
         inc esi
@@ -184,12 +187,24 @@ verificaColisaoJogador PROC
 
 ;}
 		.endif
-			ret
+    QUIT:
+    
+    ret
 verificaColisaoJogador ENDP
 
-verificaColisoes PROC
-    call verificaColisaoParede
-	;call verificaColisaoJogador
+verificaColisoes PROC USES ebx eax
+    INVOKE verificaColisaoParede, OFFSET inimigo_curr_pos, numInimigos
+    .if ebx == 1
+        .if game_curr_state == GAME_STATE_PLAYING
+            INVOKE removeInimigo, eax
+        .endif
+    .endif
+    INVOKE verificaColisaoJogador, OFFSET inimigo_curr_pos, numInimigos
+    .if ebx == 1
+        .if game_curr_state == GAME_STATE_PLAYING
+            INVOKE removeInimigo, eax
+        .endif
+    .endif
     ret
 verificaColisoes ENDP
 
