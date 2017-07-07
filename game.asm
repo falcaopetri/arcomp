@@ -8,6 +8,9 @@ INCLUDE buffer.asm
 game_setup PROC
     INVOKE GetStdHandle, STD_OUTPUT_HANDLE
     mov console, eax    ; save console handle
+
+    INVOKE SetConsoleTitle, OFFSET game_title
+    INVOKE SetConsoleScreenBufferSize, console, bufferSize
     ret
 game_setup ENDP
 
@@ -40,14 +43,14 @@ leTecla PROC
     pop ecx
     pop eax
     ;TODO mudar para up e down
-        cmp ah, 75             
-            je SetaEsquerda
-        cmp ah, 77
-            je SetaDireita
+        cmp ah, KEY_UP_CODE             
+            je MOVE_UP
+        cmp ah, KEY_DOWN_CODE
+            je MOVE_DOWN
         jmp nokey
 
 ;TODO mudar para up e down
- SetaEsquerda: 
+ MOVE_UP: 
     ;nave vai uma posição para a esquerda se não estiver do lado da parede
     cmp  nave_curr_pos.Y, 0
         je nokey
@@ -57,7 +60,7 @@ leTecla PROC
      
     jmp nokey
 
-  SetaDireita:
+  MOVE_DOWN:
     ;nave vai uma posição para a direita se não estiver do lado da parede
     cmp nave_curr_pos.Y, 20
         je nokey

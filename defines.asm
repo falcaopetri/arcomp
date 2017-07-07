@@ -9,7 +9,12 @@ CHAR_ATTRIBUTE = 0Fh    ; bright white foreground
 DELAY_BETWEEN_FRAMES = 50
 DELAY_BETWEEN_SPAWNS = 700
 
+KEY_UP_CODE = 48h
+KEY_DOWN_CODE = 50h
+
 .data
+
+game_title BYTE "ARCOMP", 0
 
 last_spawn DWORD 0
 game_curr_state DWORD GAME_STATE_PLAYING
