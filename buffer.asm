@@ -159,6 +159,17 @@ desenhaInstrucao PROC
 desenhaInstrucao ENDP
 
 
+;DESENHA MUINICAO DISPONIVEL
+desenhaMunicao PROC
+    movzx ecx, num_max_tiros
+    movzx eax, numTiros
+    .if ecx > 0   
+    .if eax < 1 
+        INVOKE insertRegionIntoBuffer, OFFSET municao, municao_dimension, municao_curr_pos
+    .endif
+    .endif
+    ret
+desenhaMunicao ENDP
 ; Atualiza tela
 atualizaTela PROC
     mov edx, 0
@@ -168,6 +179,7 @@ atualizaTela PROC
     call desenhaNave
     call desenhaInimigo
     call desenhaTiro
+    call desenhaMunicao
     ;call desenhaMoldura
  
     ret

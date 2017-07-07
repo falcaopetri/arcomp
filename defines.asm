@@ -43,11 +43,16 @@ nave BYTE 	"    |\   ",
 			"    |/   "
 ;tiros deixexi apenas um tiro
 numTiros BYTE 0
-NUM_MAX_TIROS = 1
+num_max_tiros BYTE 1
 tiro_curr_pos COORD <1,1>
 tiro_dimension COORD <1, 1>
 tiro BYTE "o",
 
+;todo mudar desenho de tiro disponivel?
+;municao
+municao_curr_pos COORD <1,1>
+municao_dimension COORD <10, 1>
+municao BYTE "DISPONIVEL",
 
 
 ;desenho do inimigo
@@ -64,6 +69,20 @@ inimigo BYTE 	"  _....._  ",
 				"`.    .  .'",
 				"  `-...-'  "
 
+
+;explosao
+explosao_curr_pos COORD NUM_MAX_INIMIGOS DUP (<20,20>)
+explosao_dimension COORD <13, 6>
+explosao BYTE "   \  |  /   ",
+			  "  .-^~~~^-.  ",
+		      " .~  ,     ~.",
+		      "(;:   *   :;)",
+              "(:         :)",
+              " ':._ |._.:' "        
+                                
+                               
+                               
+                               
 
 ; desenho da intro
 ; dividida em 3 parte por causa de uma limitação do MASM: [ML Nonfatal Error A2039](https://docs.microsoft.com/en-us/cpp/assembler/masm/ml-nonfatal-error-a2039)

@@ -51,6 +51,7 @@ leTecla PROC
 ;TODO mudar para up e down
  MOVE_UP: 
     ;nave vai uma posição para a esquerda se não estiver do lado da parede
+    or num_max_tiros,0001
     cmp  nave_curr_pos.Y, 0
         je nokey
     mov ax, nave_curr_pos.Y
@@ -61,6 +62,7 @@ leTecla PROC
 
   MOVE_DOWN:
     ;nave vai uma posição para a direita se não estiver do lado da parede
+    or num_max_tiros,0001
     cmp nave_curr_pos.Y, 20
         je nokey
     mov ax, nave_curr_pos.Y
@@ -71,6 +73,7 @@ leTecla PROC
 
 
   espaco:
+   
     call criaTiro
     
     jmp nokey
@@ -105,7 +108,8 @@ criaInimigo ENDP
 
 criaTiro PROC USES ecx eax edx
     movzx ecx, numTiros   
-    .if ecx < NUM_MAX_TIROS 
+    movzx eax, num_max_tiros 
+    .if ecx < eax
             mov ax, nave_curr_pos.X
             add ax, 9
             mov (COORD PTR tiro_curr_pos[ecx * TYPE COORD]).X, ax
@@ -113,6 +117,7 @@ criaTiro PROC USES ecx eax edx
             add ax, 2
             mov (COORD PTR tiro_curr_pos[ecx * TYPE COORD]).Y, ax
             inc numTiros
+            dec num_max_tiros
     .endif
     ret
 criaTiro ENDP
@@ -231,16 +236,8 @@ verificaColisaoTiroInimigo PROC
             cmp bx, inimigo_curr_pos[esi  * TYPE COORD].Y
                 jb inimigoSemColisao3
 
-               
-                
             ;inimigo colidiu com a parede    
-            movzx edx, numInimigos
-            dec edx
-            mov ax, inimigo_curr_pos[edx  * TYPE COORD].X
-            mov inimigo_curr_pos[esi  * TYPE COORD].X , ax
-            mov ax, inimigo_curr_pos[edx  * TYPE COORD].Y
-            mov inimigo_curr_pos[esi  * TYPE COORD].Y , ax
-            dec numInimigos
+            call removeInimigo
             dec numTiros
 
             inimigoSemColisao3:
@@ -253,6 +250,11 @@ verificaColisaoTiroInimigo PROC
 verificaColisaoTiroInimigo ENDP
 
 removeInimigo PROC
+            mov dx,  inimigo_curr_pos[esi  * TYPE COORD].X
+            mov explosao_curr_pos.X, dx
+            mov dx,  inimigo_curr_pos[esi  * TYPE COORD].Y
+            mov explosao_curr_pos.Y, dx
+            INVOKE insertRegionIntoBuffer, OFFSET explosao, explosao_dimension, explosao_curr_pos
         ;inimigo colidiu com a parede    
         movzx edx, numInimigos
         dec edx
@@ -261,6 +263,9 @@ removeInimigo PROC
         mov ax, inimigo_curr_pos[edx  * TYPE COORD].Y
         mov inimigo_curr_pos[esi  * TYPE COORD].Y , ax
         dec numInimigos
+
+
+           
 
         ret
 removeInimigo ENDP
