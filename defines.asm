@@ -120,12 +120,21 @@ instru_img5 BYTE 	"  |   |           PRESSIONE ENTER PARA CONTINUAR             
 		 			"         \________________________________________________/        "
 
 
+; desenho da intro
+; dividida em 3 parte por causa de uma limitação do MASM: [ML Nonfatal Error A2039](https://docs.microsoft.com/en-us/cpp/assembler/masm/ml-nonfatal-error-a2039)
+
 intro_pos1 COORD <0, 0>
 intro_pos2 COORD <0, 5>
 intro_pos3 COORD <0, 10>
 intro_pos4 COORD <0, 15>
 intro_pos5 COORD <0, 20>
 intro_dimension COORD <67, 5>
+
+intro_color1 WORD 4 DUP(67 DUP(0004h))
+intro_color2 WORD 4 DUP(67 DUP(0004h))
+intro_color3 WORD 4 DUP(67 DUP(0007h))
+intro_color4 WORD 4 DUP(67 DUP(0007h))
+intro_color5 WORD 4 DUP(67 DUP(0007h))
 
 intro_img1 BYTE 	"    ______________________________________________________________ ",
 					"   /                                                              \",

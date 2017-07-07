@@ -5,6 +5,7 @@ ClearBuffer PROC USES eax
 
 BLANKS:  
     mov buffer[eax * CHAR_INFO].Char, ' '
+    mov buffer[eax * CHAR_INFO].Attributes, 7h
     inc eax
     cmp eax, ROWS * COLS
     jl BLANKS
@@ -55,7 +56,6 @@ buffer_print ENDP
 insertStringIntoBuffer PROC USES ecx esi eax ebx edi string:PTR BYTE, len:WORD, start:COORD
     cld
     movzx ecx, len
-    mov esi, string
 
     movzx eax, start.Y
     imul eax, 80
@@ -63,18 +63,45 @@ insertStringIntoBuffer PROC USES ecx esi eax ebx edi string:PTR BYTE, len:WORD, 
     add eax, ebx
     imul eax, TYPE CHAR_INFO
     lea edi, buffer[eax]
-
+    mov ebx, string
 L1:
-    movzx ax, BYTE PTR [esi]
+    movzx ax, BYTE PTR [ebx]
     mov (CHAR_INFO PTR [edi]).Char, ax
-    add esi, TYPE BYTE
+    add ebx, TYPE BYTE
     add edi, TYPE CHAR_INFO
     loop L1
     ret
 insertStringIntoBuffer ENDP
 
+insertStringIntoBufferWithColor PROC USES ecx esi eax ebx edx edi string:PTR BYTE, color: PTR WORD, len:WORD, start:COORD
+    cld
+    movzx ecx, len
+    
+    movzx eax, start.Y
+    imul eax, 80
+    movzx ebx, start.X
+    add eax, ebx
+    imul eax, TYPE CHAR_INFO
+    lea edi, buffer[eax]
+    mov ebx, string
+    mov edx, color
+L1:
+    movzx ax, BYTE PTR [ebx]
+    mov (CHAR_INFO PTR [edi]).Char, ax
+
+    mov ax, WORD PTR [edx]
+    mov (CHAR_INFO PTR [edi]).Attributes, ax
+
+    add ebx, TYPE BYTE
+    add edx, TYPE WORD
+    add edi, TYPE CHAR_INFO
+    loop L1
+
+    ret
+insertStringIntoBufferWithColor ENDP
+
 ; Insere região no buffer
-insertRegionIntoBuffer PROC USES eax esi ecx string:PTR BYTE, dimension:COORD, start:COORD
+insertRegionIntoBuffer PROC USES eax ebx ecx string:PTR BYTE, dimension:COORD, start:COORD
     LOCAL curr:COORD
     ; curr <- start
     mov ax, start.X
@@ -82,19 +109,44 @@ insertRegionIntoBuffer PROC USES eax esi ecx string:PTR BYTE, dimension:COORD, s
     mov ax, start.Y
     mov curr.Y, ax
     
-    mov esi, string
+    movzx eax, dimension.X
+    mov ebx, string
+    ; for i in range(0, dimension.Y):
+    movzx ecx, dimension.Y
+    ; insere cada linha do desenho na posição adequada no buffer
+EACH_LINE:
+    INVOKE insertStringIntoBuffer, ebx, dimension.X, curr
+    inc curr.Y
+    add ebx, eax
+    loop EACH_LINE
+
+    ret
+insertRegionIntoBuffer ENDP
+
+insertRegionIntoBufferWithColor PROC USES eax ebx edx ecx string:PTR BYTE, color:PTR WORD, dimension:COORD, start:COORD
+    LOCAL curr:COORD
+    ; curr <- start
+    mov ax, start.X
+    mov curr.X, ax
+    mov ax, start.Y
+    mov curr.Y, ax
+    
+    mov ebx, string
+    mov edx, color
     movzx eax, dimension.X
     ; for i in range(0, dimension.Y):
     movzx ecx, dimension.Y
     ; insere cada linha do desenho na posição adequada no buffer
 EACH_LINE:
-    INVOKE insertStringIntoBuffer, esi, dimension.X, curr
+    INVOKE insertStringIntoBufferWithColor, ebx, edx, dimension.X, curr
     inc curr.Y
-    add esi, eax
+    add ebx, eax
+    add edx, eax
+    add edx, eax
     loop EACH_LINE
 
     ret
-insertRegionIntoBuffer ENDP
+insertRegionIntoBufferWithColor ENDP
 
 ;DESENHA NAVE
 desenhaNave PROC
@@ -141,11 +193,11 @@ desenhaTiro ENDP
 ;DESENHA INTRO
 desenhaIntro PROC
     call ClearBuffer
-    INVOKE insertRegionIntoBuffer, OFFSET intro_img1, intro_dimension, intro_pos1
-    INVOKE insertRegionIntoBuffer, OFFSET intro_img2, intro_dimension, intro_pos2
-    INVOKE insertRegionIntoBuffer, OFFSET intro_img3, intro_dimension, intro_pos3
-    INVOKE insertRegionIntoBuffer, OFFSET intro_img4, intro_dimension, intro_pos4
-    INVOKE insertRegionIntoBuffer, OFFSET intro_img5, intro_dimension, intro_pos5
+    INVOKE insertRegionIntoBufferWithColor, OFFSET intro_img1, OFFSET intro_color1, intro_dimension, intro_pos1
+    INVOKE insertRegionIntoBufferWithColor, OFFSET intro_img2, OFFSET intro_color1, intro_dimension, intro_pos2
+    INVOKE insertRegionIntoBufferWithColor, OFFSET intro_img3, OFFSET intro_color1, intro_dimension, intro_pos3
+    INVOKE insertRegionIntoBufferWithColor, OFFSET intro_img4, OFFSET intro_color1, intro_dimension, intro_pos4
+    INVOKE insertRegionIntoBufferWithColor, OFFSET intro_img5, OFFSET intro_color1, intro_dimension, intro_pos5
     ret
 desenhaIntro ENDP
 
