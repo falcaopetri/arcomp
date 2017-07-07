@@ -144,6 +144,8 @@ desenhaIntro PROC
     INVOKE insertRegionIntoBuffer, OFFSET intro_img1, intro_dimension, intro_pos1
     INVOKE insertRegionIntoBuffer, OFFSET intro_img2, intro_dimension, intro_pos2
     INVOKE insertRegionIntoBuffer, OFFSET intro_img3, intro_dimension, intro_pos3
+    INVOKE insertRegionIntoBuffer, OFFSET intro_img4, intro_dimension, intro_pos4
+    INVOKE insertRegionIntoBuffer, OFFSET intro_img5, intro_dimension, intro_pos5
     ret
 desenhaIntro ENDP
 
