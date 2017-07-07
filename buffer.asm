@@ -103,7 +103,7 @@ desenhaNave PROC
 desenhaNave ENDP
 
 
-;DESENHA NAVE
+;DESENHA INIMIGO
 desenhaInimigo PROC USES ecx esi eax
     movzx ecx, numInimigos
     cmp ecx, 0
@@ -120,6 +120,23 @@ fim:
 
     ret
 desenhaInimigo ENDP
+
+;DESENHA TIRO
+desenhaTiro PROC USES ecx esi eax
+    movzx ecx, numTiros
+    cmp ecx, 0
+    je fim
+    mov esi, 0
+L1:
+    INVOKE insertRegionIntoBuffer, OFFSET tiro, tiro_dimension, tiro_curr_pos[esi]
+    add tiro_curr_pos[esi].X, 2
+    add esi, TYPE COORD
+    loop L1
+fim:
+
+    ret
+desenhaTiro ENDP
+
 
 ;DESENHA INTRO
 desenhaIntro PROC
@@ -150,6 +167,7 @@ atualizaTela PROC
     call ClearBuffer
     call desenhaNave
     call desenhaInimigo
+    call desenhaTiro
     ;call desenhaMoldura
  
     ret
