@@ -9,12 +9,7 @@ CHAR_ATTRIBUTE = 0Fh    ; bright white foreground
 DELAY_BETWEEN_FRAMES = 50
 DELAY_BETWEEN_SPAWNS = 700
 
-KEY_UP_CODE = 48h
-KEY_DOWN_CODE = 50h
-
 .data
-
-game_title BYTE "ARCOMP", 0
 
 last_spawn DWORD 0
 game_curr_state DWORD GAME_STATE_PLAYING
@@ -43,6 +38,13 @@ nave BYTE 	"    |\   ",
 			"|===== )>",
 			"|/  | /  ",
 			"    |/   "
+;tiros deixexi apenas um tiro
+numTiros BYTE 0
+NUM_MAX_TIROS = 1
+tiro_curr_pos COORD <1,1>
+tiro_dimension COORD <1, 1>
+tiro BYTE "o",
+
 
 
 ;desenho do inimigo
@@ -52,8 +54,8 @@ NUM_MAX_INIMIGOS = 3
 inimigo_curr_pos COORD NUM_MAX_INIMIGOS DUP (<20,20>)
 
 inimigo_dimension COORD <11, 6>
-inimigo BYTE 	"   _..._   ",
-				" .'   - `. ",
+inimigo BYTE 	"  _....._  ",
+				".'     - `.",
 				":  o      :",
 				":       O :",
 				"`.    .  .'",
