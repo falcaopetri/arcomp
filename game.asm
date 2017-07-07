@@ -11,6 +11,8 @@ game_setup PROC
 
     INVOKE SetConsoleTitle, OFFSET game_title
     INVOKE SetConsoleScreenBufferSize, console, bufferSize
+
+    call ClearBuffer
     ret
 game_setup ENDP
 
@@ -31,7 +33,10 @@ game_print PROC USES eax
 game_print ENDP
 
 
-
+game_level_calculate_remaining_enemies PROC
+    mov game_level_remaining_enemies, 5
+    ret
+game_level_calculate_remaining_enemies ENDP
 
 leTecla PROC
   ;lê a tecla
@@ -42,11 +47,13 @@ leTecla PROC
     call ReadKeyflush
     pop ecx
     pop eax
-        cmp ah, KEY_UP_CODE
-            je MOVE_UP
-        cmp ah, KEY_DOWN_CODE
-            je MOVE_DOWN
-        jmp nokey
+    cmp ah, KEY_UP_CODE
+        je MOVE_UP
+    cmp ah, KEY_DOWN_CODE
+        je MOVE_DOWN
+    cmp al, KEY_ESC_CODE
+        je QUIT_CODE
+    jmp nokey
 
  MOVE_UP: 
     ;nave vai uma posição para a esquerda se não estiver do lado da parede
@@ -67,7 +74,11 @@ leTecla PROC
     mov nave_curr_pos.Y, ax
     
     jmp nokey
-   
+ QUIT_CODE:
+    mov game_curr_state, GAME_STATE_QUIT
+    mov edx, OFFSET game_title
+    INVOKE WriteString
+    
   nokey:      
     ret
 leTecla ENDP
@@ -78,19 +89,21 @@ criaInimigo PROC USES ecx eax edx
     mov edx, eax
     sub eax, last_spawn
     .if ecx < NUM_MAX_INIMIGOS 
-        .if eax > DELAY_BETWEEN_SPAWNS
-            mov last_spawn, edx
-            ;todo setar linhas fixas
-            call Randomize
-            mov  eax, 19
-            call RandomRange ;
-            inc  eax         
+        .if game_level_remaining_enemies >= NUM_MAX_INIMIGOS
+            .if eax > DELAY_BETWEEN_SPAWNS
+                mov last_spawn, edx
+                ;todo setar linhas fixas
+                call Randomize
+                mov  eax, 19
+                call RandomRange ;
+                inc  eax         
 
-            mov (COORD PTR inimigo_curr_pos[ecx * TYPE COORD]).X, 60 
-            ; coloca em uma posicao aleatória da tela
-            mov (COORD PTR inimigo_curr_pos[ecx * TYPE COORD]).Y, ax 
+                mov (COORD PTR inimigo_curr_pos[ecx * TYPE COORD]).X, 60 
+                ; coloca em uma posicao aleatória da tela
+                mov (COORD PTR inimigo_curr_pos[ecx * TYPE COORD]).Y, ax 
 
-            inc numInimigos
+                inc numInimigos
+            .endif
         .endif
     .endif
     ret
@@ -116,6 +129,7 @@ verificaColisaoParede PROC
         mov ax, inimigo_curr_pos[edx  * TYPE COORD].Y
         mov inimigo_curr_pos[esi  * TYPE COORD].Y , ax
         dec numInimigos
+        dec game_level_remaining_enemies
 
         inimigoSemColisao:
         inc esi
@@ -173,6 +187,25 @@ verificaColisaoJogador PROC
 			ret
 verificaColisaoJogador ENDP
 
+verificaColisoes PROC
+    call verificaColisaoParede
+	;call verificaColisaoJogador
+    ret
+verificaColisoes ENDP
+
+atualizarEstados PROC
+    call leTecla
+
+    ;TODO colocar pausa para criar inimigo, n da para criar qd bate na parede pq vai ter sempre 1
+    call criaInimigo
+    call verificaColisoes
+
+    .if game_level_remaining_enemies == 0
+        mov game_curr_state, GAME_STATE_STAR
+    .endif
+    ret
+atualizarEstados ENDP
+
 ;;
 ; Invoca a sequência de funções do loop principal
 ; enquanto game_curr_state não for definido como
@@ -180,21 +213,19 @@ verificaColisaoJogador ENDP
 ; @param game_curr_state - variável global
 ;;
 game_loop PROC
+    call game_level_calculate_remaining_enemies
 
 MAIN_LOOP:
-    
+    call atualizarEstados
     call atualizaTela
-    ;TODO colocar pausa para criar inimigo, n da para criar qd bate na parede pq vai ter sempre 1
-    call criaInimigo
-    call verificaColisaoParede
-	call verificaColisaoJogador
-    call leTecla
+    
     call game_print
-
 
     .if game_curr_state != GAME_STATE_QUIT
         jmp MAIN_LOOP
     .endif
+
+    call ClrScr
 
     ret
 game_loop ENDP

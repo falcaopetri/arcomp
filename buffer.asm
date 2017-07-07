@@ -121,6 +121,21 @@ fim:
     ret
 desenhaInimigo ENDP
 
+;DESENHA ESTRELA
+desenhaEstrelas PROC USES ecx esi eax
+    mov ecx, NUM_STARS
+    mov esi, 0
+L1:
+    INVOKE insertRegionIntoBuffer, OFFSET star, star_dimension, star_curr_pos[esi]
+    dec star_curr_pos[esi].X
+    add esi, TYPE COORD
+
+    
+    loop L1
+
+    ret
+desenhaEstrelas ENDP
+
 ;DESENHA INTRO
 desenhaIntro PROC
     call ClearBuffer
@@ -149,7 +164,11 @@ atualizaTela PROC
     
     call ClearBuffer
     call desenhaNave
-    call desenhaInimigo
+    .if game_curr_state == GAME_STATE_PLAYING
+        call desenhaInimigo
+    .elseif game_curr_state == GAME_STATE_STAR
+        call desenhaEstrelas
+    .endif
     ;call desenhaMoldura
  
     ret

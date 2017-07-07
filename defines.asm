@@ -1,6 +1,7 @@
 GAME_STATE_QUIT = 1                          ; encerrar o jogo
 GAME_STATE_MENU_MAIN = 2                     ; mostrar menu principal
 GAME_STATE_PLAYING = 3                     ; jogando
+GAME_STATE_STAR = 4                     ; respondendo pergunta
 
 COLS = 80               ; number of columns
 ROWS = 25               ; number of rows
@@ -11,6 +12,9 @@ DELAY_BETWEEN_SPAWNS = 700
 
 KEY_UP_CODE = 48h
 KEY_DOWN_CODE = 50h
+KEY_ESC_CODE = 1Bh
+
+MAX_LEVELS = 10
 
 .data
 
@@ -18,6 +22,8 @@ game_title BYTE "ARCOMP", 0
 
 last_spawn DWORD 0
 game_curr_state DWORD GAME_STATE_PLAYING
+game_level_curr BYTE 1
+game_level_remaining_enemies DWORD ?
 
 console HANDLE 0
 buffer CHAR_INFO ROWS * COLS DUP(<<'-'>, CHAR_ATTRIBUTE>)
@@ -58,6 +64,17 @@ inimigo BYTE 	"   _..._   ",
 				":       O :",
 				"`.    .  .'",
 				"  `-...-'  "
+
+;desenho da estrela
+;variaveis das estrelas
+NUM_STARS = 3
+star_curr_pos COORD <60, 0>, <60, 10>, <60, 20>
+star_dimension COORD <9, 5>
+star BYTE 	"    |\   ",
+			"|\  | \  ",
+			"|===== )>",
+			"|/  | /  ",
+			"    |/   "
 
 
 ; desenho da intro
