@@ -42,14 +42,12 @@ leTecla PROC
     call ReadKeyflush
     pop ecx
     pop eax
-    ;TODO mudar para up e down
-        cmp ah, KEY_UP_CODE             
+        cmp ah, KEY_UP_CODE
             je MOVE_UP
         cmp ah, KEY_DOWN_CODE
             je MOVE_DOWN
         jmp nokey
 
-;TODO mudar para up e down
  MOVE_UP: 
     ;nave vai uma posição para a esquerda se não estiver do lado da parede
     cmp  nave_curr_pos.Y, 0
