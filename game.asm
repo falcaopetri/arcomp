@@ -40,16 +40,16 @@ leTecla PROC
     pop ecx
     pop eax
     ;TODO mudar para up e down
-        cmp ah, 75             
-            je SetaEsquerda
-        cmp ah, 77
-            je SetaDireita
-        cmp ah, 57
-            je Espaco
+        cmp ah, KEY_UP_CODE
+            je MOVE_UP
+        cmp ah, KEY_DOWN_CODE
+            je MOVE_DOWN
+        cmp ah, KEY_SPACE_CODE
+            je espaco
         jmp nokey
 
 ;TODO mudar para up e down
- SetaEsquerda: 
+ MOVE_UP: 
     ;nave vai uma posição para a esquerda se não estiver do lado da parede
     cmp  nave_curr_pos.Y, 0
         je nokey
@@ -59,7 +59,7 @@ leTecla PROC
      
     jmp nokey
 
-  SetaDireita:
+  MOVE_DOWN:
     ;nave vai uma posição para a direita se não estiver do lado da parede
     cmp nave_curr_pos.Y, 20
         je nokey
@@ -70,7 +70,7 @@ leTecla PROC
     jmp nokey
 
 
-  Espaco:
+  espaco:
     call criaTiro
     
     jmp nokey
@@ -242,7 +242,6 @@ verificaColisaoTiroInimigo PROC
             mov inimigo_curr_pos[esi  * TYPE COORD].Y , ax
             dec numInimigos
             dec numTiros
-            dec NUM_MAX_TIROS
 
             inimigoSemColisao3:
                 inc esi

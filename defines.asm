@@ -9,6 +9,9 @@ CHAR_ATTRIBUTE = 0Fh    ; bright white foreground
 DELAY_BETWEEN_FRAMES = 50
 DELAY_BETWEEN_SPAWNS = 700
 
+KEY_UP_CODE = 48h
+KEY_DOWN_CODE = 50h
+KEY_SPACE_CODE = 57
 .data
 
 last_spawn DWORD 0
