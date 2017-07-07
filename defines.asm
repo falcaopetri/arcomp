@@ -68,6 +68,7 @@ inimigo BYTE 	"   _..._   ",
 ;desenho da estrela
 ;variaveis das estrelas
 NUM_STARS = 3
+star_initial_pos COORD <60, 0>, <60, 10>, <60, 20>
 star_curr_pos COORD <60, 0>, <60, 10>, <60, 20>
 star_dimension COORD <9, 5>
 star BYTE 	"    |\   ",
