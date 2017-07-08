@@ -1,5 +1,8 @@
 .code
 
+;;
+; Limpa buffer da tela
+;;
 ClearBuffer PROC USES eax 
     xor eax, eax
 
@@ -14,37 +17,8 @@ BLANKS:
 ClearBuffer ENDP
 
 ;;
-; Dá fill no buffer com o conteúdo do menu MAIN
-; @param game_curr_state - variável global
-; @return buffer - modifica a variável global
+; Imprime buffer na tela e espera DELAY_BETWEEN_FRAMES
 ;;
-buffer_fill_menu_main PROC USES eax edx ecx
-    CALL ClearBuffer
-
-    ; render 10 by 7 rectangle
-    mov edx, y
-    mov ecx, 7
-ONELINE:
-    mov eax, x
-
-    push ecx
-    mov ecx, 10
-
-ONECHAR:
-    ;INVOKE CharToBuffer, eax, edx, character
-    inc eax
-    loop ONECHAR    ; inner loop prints characters
-
-    inc edx
-    pop ecx
-    loop ONELINE    ; outer loop prints lines
-
-    inc x           ; increment x for the next frame
-    inc character   ; change fill character for the next frame
-
-    ret
-buffer_fill_menu_main ENDP
-
 buffer_print PROC
     invoke WriteConsoleOutput, console, 
            ADDR buffer, bufferSize, bufferCoord, ADDR region
@@ -53,6 +27,9 @@ buffer_print PROC
     ret
 buffer_print ENDP
 
+;;
+; Insere string na posição start do buffer
+;;
 insertStringIntoBuffer PROC USES ecx esi eax ebx edi string:PTR BYTE, len:WORD, start:COORD
     cld
     movzx ecx, len
@@ -73,6 +50,10 @@ L1:
     ret
 insertStringIntoBuffer ENDP
 
+;;
+; Insere string com cor color na posição start do buffer
+; FIXME copy'n'paste de insertStringIntoBuffer
+;;
 insertStringIntoBufferWithColor PROC USES ecx esi eax ebx edx edi string:PTR BYTE, color: PTR WORD, len:WORD, start:COORD
     cld
     movzx ecx, len
@@ -100,7 +81,9 @@ L1:
     ret
 insertStringIntoBufferWithColor ENDP
 
-; Insere região no buffer
+;;
+; Insere região definida por string e delimitada por dimension na posição start do buffer
+;;
 insertRegionIntoBuffer PROC USES eax ebx ecx string:PTR BYTE, dimension:COORD, start:COORD
     LOCAL curr:COORD
     ; curr <- start
@@ -123,6 +106,10 @@ EACH_LINE:
     ret
 insertRegionIntoBuffer ENDP
 
+;;
+; Insere região definida por string, com cor color e delimitada por dimension na posição start do buffer
+; FIXME copy'n'paste de insertRegionIntoBuffer
+;;
 insertRegionIntoBufferWithColor PROC USES eax ebx edx ecx string:PTR BYTE, color:PTR WORD, dimension:COORD, start:COORD
     LOCAL curr:COORD
     ; curr <- start
@@ -148,14 +135,18 @@ EACH_LINE:
     ret
 insertRegionIntoBufferWithColor ENDP
 
-;DESENHA NAVE
+;;
+; Desenha nave
+;;
 desenhaNave PROC
     INVOKE insertRegionIntoBuffer, OFFSET nave, nave_dimension, nave_curr_pos
     ret
 desenhaNave ENDP
 
 
-;DESENHA INIMIGO
+;;
+; Desenha todos os inimigos
+;;
 desenhaInimigo PROC USES ecx esi eax
     movzx ecx, numInimigos
     cmp ecx, 0
@@ -173,7 +164,9 @@ fim:
     ret
 desenhaInimigo ENDP
 
-;DESENHA TIRO
+;;
+; Desenha todos os tiros
+;;
 desenhaTiro PROC USES ecx esi eax
     movzx ecx, numTiros
     cmp ecx, 0
@@ -189,7 +182,9 @@ fim:
     ret
 desenhaTiro ENDP
 
-;DESENHA ESTRELA
+;;
+; Desenha todas as estrelas, junto com as respostas das perguntas
+;;
 desenhaEstrelas PROC USES ecx esi eax ebx
     mov ecx, NUM_STARS
     mov esi, 0
@@ -209,7 +204,9 @@ L1:
     ret
 desenhaEstrelas ENDP
 
-;DESENHA INTRO
+;;
+; Desenha introdução
+;;
 desenhaIntro PROC
     call ClearBuffer
     INVOKE insertRegionIntoBufferWithColor, OFFSET intro_img1, OFFSET intro_color1, intro_dimension, intro_pos1
@@ -220,7 +217,9 @@ desenhaIntro PROC
     ret
 desenhaIntro ENDP
 
-;DESENHA ARCOMP
+;;
+; Desenha tela final do jogo (Arcomp)
+;;
 desenhaArcomp PROC
     call ClearBuffer
     INVOKE insertRegionIntoBufferWithColor, OFFSET intro_img1, OFFSET intro_color1, intro_dimension, intro_pos1
@@ -231,7 +230,9 @@ desenhaArcomp PROC
     ret
 desenhaArcomp ENDP
 
-;DESENHA Lose
+;;
+; Desenha tela de lose
+;;
 desenhaLose PROC
     call ClearBuffer
     INVOKE insertRegionIntoBufferWithColor, OFFSET intro_img1, OFFSET intro_color1, intro_dimension, intro_pos1
@@ -242,7 +243,9 @@ desenhaLose PROC
     ret
 desenhaLose ENDP
 
-;DESENHA INSTRU
+;;
+; Desenha tela de instruções
+;;
 desenhaInstrucao PROC
     call ClearBuffer
     INVOKE insertRegionIntoBuffer, OFFSET instru_img1, instru_dimension, instru_pos1
@@ -254,7 +257,9 @@ desenhaInstrucao PROC
 desenhaInstrucao ENDP
 
 
-;DESENHA MUNICAO DISPONIVEL
+;;
+; Desenha munição disponível
+;;
 desenhaMunicao PROC
     movzx ecx, num_max_tiros
     movzx eax, numTiros
@@ -266,6 +271,9 @@ desenhaMunicao PROC
     ret
 desenhaMunicao ENDP
 
+;;
+; Desenha informação do nível
+;;
 desenhaLevel PROC
     INVOKE insertRegionIntoBuffer, OFFSET level, level_dimension, level_pos
     push eax
@@ -277,6 +285,9 @@ desenhaLevel PROC
     ret
 desenhaLevel ENDP
 
+;;
+; Desenha pergunta do nível
+;;
 desenhaPergunta PROC
     INVOKE insertRegionIntoBuffer, OFFSET game_level_question, digit_dimension, pergunta_pos
     add pergunta_pos.X, 2
@@ -291,6 +302,9 @@ desenhaPergunta PROC
     ret
 desenhaPergunta ENDP
 
+;;
+; Desenha informações apropriadas para o estado atual do jogo
+;;
 desenhaInfo PROC
     .if game_curr_state == GAME_STATE_PLAYING
         call desenhaMunicao
@@ -301,7 +315,9 @@ desenhaInfo PROC
     ret
 desenhaInfo ENDP
 
-; Atualiza tela
+;;
+; Desenha as informações apropriadas para o estado atual do jogo
+;;
 atualizaTela PROC
     call desenhaNave
     

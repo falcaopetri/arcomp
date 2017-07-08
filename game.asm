@@ -5,6 +5,10 @@ INCLUDE defines.asm
 INCLUDE buffer.asm
 
 .code
+
+;;
+; Configura o terminal, incluindo título e tamanho da janela
+;;
 game_setup PROC
     INVOKE GetStdHandle, STD_OUTPUT_HANDLE
     mov console, eax    ; save console handle
@@ -17,22 +21,9 @@ game_setup PROC
 game_setup ENDP
 
 ;;
-; Invoca o fill'er correto do buffer baseado no game_curr_state,
-; e imprime o buffer na tela
-; @param game_curr_state - variável global
+; Função que define quantos inimigos no nível
+; inimigos = level * 2 + 5, level in [0, MAX_LEVELS]
 ;;
-game_print PROC USES eax
-    ;.if game_curr_state == GAME_STATE_MENU_MAIN
-    ;    call buffer_fill_menu_main
-    ;.if game_curr_state == GAME_STATE_PLAYING
-    ;    call buffer_fill_playing
-    ;.endif
-
-    call buffer_print
-    ret
-game_print ENDP
-
-
 game_level_calculate_remaining_enemies PROC uses eax
     movzx eax, game_level_curr
     mov game_level_remaining_enemies, eax
@@ -41,12 +32,23 @@ game_level_calculate_remaining_enemies PROC uses eax
     ret
 game_level_calculate_remaining_enemies ENDP
 
+;;
+; Macro para gerar um número em eax no range [1, range]
+;;
 mRandomPositive MACRO range
     mov  eax, range
     call RandomRange
     inc  eax
 ENDM
 
+;;
+; Popula as informações de game_level_question
+;   - Testa por resultados negativos (A < B, op -)
+;   - Testa por ambiquidades de resposta (2 + 2 = 2 * 2)
+; FIXME como não temos uma boa função para imprimir um número com várias casas decimais
+; estamos gerando apenas perguntas que usam apenas dígitos, e cuja operação não gere
+; números > 10. Isto é, apenas os pares (1, 1), (2,1), (3, 1), (3, 2), (3, 3)
+;;
 game_level_calculate_star_question PROC USES eax ebx edx
     call Randomize
     mRandomPositive 3
@@ -62,7 +64,9 @@ game_level_calculate_star_question PROC USES eax ebx edx
     .endif
     ; nunca dá 2*2 = 2+2
     .if game_level_question.A == 2
-        inc game_level_question.A
+        .if game_level_question.B == 2
+            inc game_level_question.A
+        .endif
     .endif
 
     mRandomPositive 3
@@ -91,7 +95,10 @@ game_level_calculate_star_question PROC USES eax ebx edx
     ret
 game_level_calculate_star_question ENDP
 
-
+;;
+; lê tecla e realiza a ação necessária de acordo com
+; o estado atual do jogo
+;;
 leTecla PROC
   ;lê a tecla
     call readkey
@@ -138,7 +145,7 @@ leTecla PROC
 
  MOVE_UP: 
     ;nave vai uma posição para a esquerda se não estiver do lado da parede
-    or num_max_tiros,0001
+    or num_max_tiros, 0001
     cmp  nave_curr_pos.Y, 0
         je nokey
     mov ax, nave_curr_pos.Y
@@ -170,6 +177,13 @@ leTecla PROC
     ret
 leTecla ENDP
 
+;;
+; Cria inimigo se as seguintes condições forem satisfeitas:
+;   - Delay de DELAY_BETWEEN_SPAWNS
+;   - Não mais que NUM_MAX_INIMIGOS ativos
+;   - Ainda existe inimigos restantes no level
+; Gera um inimigo em uma posição aleatória de Y
+;;
 criaInimigo PROC USES ecx eax edx
     movzx ecx, numInimigos
     call GetMseconds
@@ -179,11 +193,8 @@ criaInimigo PROC USES ecx eax edx
         .if game_level_remaining_enemies >= NUM_MAX_INIMIGOS
             .if eax > DELAY_BETWEEN_SPAWNS
                 mov last_spawn, edx
-                ;todo setar linhas fixas
                 call Randomize
-                mov  eax, 19
-                call RandomRange ;
-                inc  eax         
+                mRandomPositive 19
 
                 mov (COORD PTR inimigo_curr_pos[ecx * TYPE COORD]).X, 60 
                 ; coloca em uma posicao aleatória da tela
@@ -196,6 +207,9 @@ criaInimigo PROC USES ecx eax edx
     ret
 criaInimigo ENDP
 
+;;
+; Cria um tiro se houverem tiros disponíveis
+;;
 criaTiro PROC USES ecx eax edx
     movzx ecx, numTiros   
     movzx eax, num_max_tiros 
@@ -213,6 +227,9 @@ criaTiro PROC USES ecx eax edx
 criaTiro ENDP
 
 ;COLISAO
+;;
+; Remove o inimigo enemy[idx], e gera a animação de explosão por 1 frame
+;;
 removeInimigo PROC USES edx esi eax ebx, idx:DWORD
     movzx edx, numInimigos
     mov esi, idx
@@ -235,8 +252,11 @@ removeInimigo PROC USES edx esi eax ebx, idx:DWORD
 removeInimigo ENDP
 
 ;COLISAO
+;;
+; Testa se algum elemento de array colidiu com a parede esquerda
 ; ebx = 0 se não teve colisão
 ; ebx = 1 retorna em eax o índice da colisão
+;;
 verificaColisaoParede PROC USES ecx esi, array:DWORD, len:DWORD
     mov ecx, len
     mov ebx, 0
@@ -257,6 +277,11 @@ verificaColisaoParede PROC USES ecx esi, array:DWORD, len:DWORD
     ret
 verificaColisaoParede ENDP
 
+;;
+; Testa se algum elemento de tiro_curr_pos colidiu com a parede direita
+; Remove ele caso necessário
+; FIXME funciona apenas para 1 bala ativa
+;;
 verificaColisaoParedeTiro PROC
     movzx ecx, numTiros
     .if ecx > 0
@@ -275,6 +300,9 @@ verificaColisaoParedeTiro PROC
     ret
 verificaColisaoParedeTiro ENDP
 
+;;
+; Ações necessárias para se começar um nível novo
+;;
 level_reset PROC USES ecx esi eax
     call game_level_calculate_remaining_enemies
     mov ecx, NUM_STARS
@@ -290,6 +318,9 @@ level_reset PROC USES ecx esi eax
     ret
 level_reset ENDP
 
+;;
+; Ações necessárias para se começar um jogo novo
+;;
 game_reset PROC
     mov game_level_curr, 0
     call level_reset
@@ -297,8 +328,11 @@ game_reset PROC
 game_reset ENDP
 
 ;COLISAO
+;;
+; Testa se algum elemento de array colidiu com a nave
 ; ebx = 0 se não teve colisão
 ; ebx = 1 retorna em eax o índice da colisão
+;;
 verificaColisaoJogador PROC USES ecx esi edx, array:DWORD, len:DWORD
     mov ecx, len
     mov ebx, 0
@@ -341,6 +375,13 @@ verificaColisaoJogador PROC USES ecx esi edx, array:DWORD, len:DWORD
     ret
 verificaColisaoJogador ENDP
 
+;;
+;;
+; Testa se algum elemento de tiro_curr_pos colidiu com algum inimigo
+; ebx = 0 se não teve colisão
+; ebx = 1 retorna em eax o índice da colisão
+; FIXME funciona apenas para 1 bala ativa
+;;
 verificaColisaoTiroInimigo PROC
         movzx ecx, numInimigos
         movzx eax, numTiros
@@ -386,7 +427,11 @@ verificaColisaoTiroInimigo PROC
     ret
 verificaColisaoTiroInimigo ENDP
 
-next_level PROC
+;;
+; Avança para o próximo nível ou para o fim do jogo
+; @param game_level_curr - variável global
+;;
+level_next PROC
     inc game_level_curr
     .if game_level_curr == MAX_LEVELS
         mov game_curr_state, GAME_STATE_ARCOMP
@@ -395,19 +440,26 @@ next_level PROC
         mov game_curr_state, GAME_STATE_PLAYING
     .endif
     ret
-next_level ENDP
+level_next ENDP
 
+;;
+; Testa se o jogador selecionou a resposta certa,
+; avançando para o próximo nível ou perdendo
+; @param game_curr_state - variável global
+; @param idx - índice do objeto colidido
+;;
 checkStarAnswer PROC USES eax idx:DWORD
     mov eax, OFFSET OPS
     add eax, idx
     mov al, BYTE PTR [eax]
     .if game_level_question.OP == al
-        call next_level
+        call level_next
     .else
         mov game_curr_state, GAME_STATE_LOSE_STAR
     .endif
     ret
 checkStarAnswer ENDP
+
 
 mRemoveInimigo MACRO
     .if ebx == 1
@@ -415,6 +467,21 @@ mRemoveInimigo MACRO
     .endif
 ENDM
 
+;;
+; Pode ocorrer colisões entre:
+;   - Parede (direita) e tiro
+;   - Parede (esquerda) e inimigo
+;   - Inimigo e nave
+;   - Tiro e inimigo
+;   - Nave e estrela
+; Essa última colisão só pode ocorrer se estamos no modo GAME_STATE_STAR,
+; os demais ocorrem apenas se estamos no modo GAME_STATE_PLAYING.
+; Sempre que ocorre uma colisão, alguém é removido (inimigo ou tiro).
+;
+; TODO atualmente, a nave precisa estar alinhada com a estrela para que não colida com uma estrela errada
+; A colisão com uma estrela gera um teste de resposta correta (checkStarAnswer)
+; @param game_curr_state - variável global
+;;
 verificaColisoes PROC USES ebx eax
     .if game_curr_state == GAME_STATE_PLAYING
         call verificaColisaoParedeTiro
@@ -433,18 +500,23 @@ verificaColisoes PROC USES ebx eax
         .if ebx == 1
             INVOKE checkStarAnswer, eax
         .endif
-        INVOKE verificaColisaoParede, OFFSET star_curr_pos, NUM_STARS
-        .if ebx == 1
-            mov game_curr_state, GAME_STATE_QUIT
-        .endif
+        ;INVOKE verificaColisaoParede, OFFSET star_curr_pos, NUM_STARS
+        ;.if ebx == 1
+        ;    mov game_curr_state, GAME_STATE_QUIT
+        ;.endif
     .endif
     ret
 verificaColisoes ENDP
 
+;;
+; Leitura de tecla, criação de inimigo, teste de colisões
+; teste de fim da fase, todos acompanhados de possíveis
+; atualizações em game_curr_state
+; @param game_curr_state - variável global
+;;
 atualizarEstados PROC
     call leTecla
 
-    ;TODO colocar pausa para criar inimigo, n da para criar qd bate na parede pq vai ter sempre 1
     call criaInimigo
     call verificaColisoes
 
@@ -460,7 +532,12 @@ atualizarEstados ENDP
 ;;
 ; Invoca a sequência de funções do loop principal
 ; enquanto game_curr_state não for definido como
-; GAME_STATE_QUIT por alguma delas
+; GAME_STATE_QUIT por atualizarEstados
+; Loop principal:
+;   - Limpar buffer
+;   - Atualziar Estado
+;   - Atualizar Tela
+;   - Desenhar Tela
 ; @param game_curr_state - variável global
 ;;
 game_loop PROC
@@ -469,7 +546,7 @@ MAIN_LOOP:
 
     call atualizarEstados
     call atualizaTela
-    call game_print
+    call buffer_print
 
     .if game_curr_state != GAME_STATE_QUIT
         jmp MAIN_LOOP

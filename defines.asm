@@ -1,3 +1,4 @@
+; GAME STATES
 GAME_STATE_QUIT = 1                         ; encerrar o jogo
 ;GAME_STATE_MENU_MAIN = 2                    ; mostrar menu principal
 GAME_STATE_PLAYING = 3                     	; jogando
@@ -8,23 +9,25 @@ GAME_STATE_LOSE_COLLISION = GAME_STATE_LOSE_STAR		; lose por colisão
 GAME_STATE_INTRO = 8		; mostrar intro
 GAME_STATE_INSTRU = 9		; mostrar instru
 
+; TELA
 COLS = 80               ; number of columns
 ROWS = 25               ; number of rows
 CHAR_ATTRIBUTE = 0Fh    ; bright white foreground
 
+; DELAYS
 DELAY_BETWEEN_FRAMES = 50
 DELAY_BETWEEN_SPAWNS = 700
 
+; TECLAS
 KEY_UP_CODE = 48h
 KEY_DOWN_CODE = 50h
 KEY_SPACE_CODE = 39h
 KEY_ESC_CODE = 1Bh
 KEY_ENTER_CODE = 0Dh
 
-MAX_LEVELS = 2
 
 .data
-
+; PERGUNTAs
 OPS BYTE '+', '-', '*'
 QUESTION BYTE '?'
 EQUAL BYTE '='
@@ -37,6 +40,8 @@ STAR_QUESTION STRUCT
 STAR_QUESTION ENDS
 pergunta_pos COORD <40, 1>
 
+; GAME
+MAX_LEVELS = 2
 game_level_question STAR_QUESTION <>
 
 game_title BYTE "ARCOMP", 0
@@ -45,6 +50,7 @@ game_curr_state DWORD GAME_STATE_INTRO
 game_level_curr BYTE 0
 game_level_remaining_enemies DWORD ?
 
+; TELA
 console HANDLE 0
 buffer CHAR_INFO ROWS * COLS DUP(<<'-'>, CHAR_ATTRIBUTE>)
 bufferSize COORD <COLS, ROWS>
@@ -129,7 +135,6 @@ explosao BYTE "   \  |  /   ",
                                
                                
                               
-;!!!!TODO!!!!! instruções 
 ; desenho das instruções
 ; dividida em 5 parte por causa de uma limitação do MASM: [ML Nonfatal Error A2039](https://docs.microsoft.com/en-us/cpp/assembler/masm/ml-nonfatal-error-a2039)
 instru_pos1 COORD <0, 0>
