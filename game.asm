@@ -33,10 +33,64 @@ game_print PROC USES eax
 game_print ENDP
 
 
-game_level_calculate_remaining_enemies PROC
-    mov game_level_remaining_enemies, 5
+game_level_calculate_remaining_enemies PROC uses eax
+    movzx eax, game_level_curr
+    mov game_level_remaining_enemies, eax
+    shl game_level_remaining_enemies, 1
+    add game_level_remaining_enemies, 5
     ret
 game_level_calculate_remaining_enemies ENDP
+
+mRandomPositive MACRO range
+    mov  eax, range
+    call RandomRange
+    inc  eax
+ENDM
+
+game_level_calculate_star_question PROC USES eax ebx edx
+    call Randomize
+    mRandomPositive 3
+    mov game_level_question.A, al
+    mRandomPositive 3
+    mov game_level_question.B, al
+
+    ; nunca dá sub negativo
+    .if game_level_question.A < al
+        mov ah, game_level_question.A
+        mov game_level_question.A, al
+        mov game_level_question.B, ah
+    .endif
+    ; nunca dá 2*2 = 2+2
+    .if game_level_question.A == 2
+        inc game_level_question.A
+    .endif
+
+    mRandomPositive 3
+    dec eax
+
+    mov bl, game_level_question.A
+    .if OPS[eax] == '+'
+        add bl, game_level_question.B
+        mov game_level_question.R, bl
+        mov game_level_question.OP, '+'
+    .elseif OPS[eax] == '-'
+        sub bl, game_level_question.B
+        mov game_level_question.R, bl
+        mov game_level_question.OP, '-'
+    .elseif OPS[eax] == '*'
+        movzx dx, game_level_question.B
+        imul bx, dx
+        mov game_level_question.R, bl
+        mov game_level_question.OP, '*'
+    .endif
+
+    add game_level_question.A, '0'
+    add game_level_question.B, '0'
+    add game_level_question.R, '0'
+
+    ret
+game_level_calculate_star_question ENDP
+
 
 leTecla PROC
   ;lê a tecla
@@ -47,17 +101,40 @@ leTecla PROC
     call ReadKeyflush
     pop ecx
     pop eax
-    cmp ah, KEY_UP_CODE
-        je MOVE_UP
-    cmp ah, KEY_DOWN_CODE
-        je MOVE_DOWN
-    cmp ah, KEY_SPACE_CODE
-        .if game_curr_state == GAME_STATE_PLAYING
-            je espaco
+    .if al == KEY_ENTER_CODE
+        .if game_curr_state == GAME_STATE_INTRO
+            mov game_curr_state, GAME_STATE_INSTRU
+            jmp nokey
+        .elseif game_curr_state == GAME_STATE_INSTRU
+            call game_reset
+            mov game_curr_state, GAME_STATE_PLAYING
+            jmp nokey
         .endif
-    cmp al, KEY_ESC_CODE
-        je QUIT_CODE
-    jmp nokey
+    .elseif al == KEY_ESC_CODE
+        .if game_curr_state == GAME_STATE_INTRO
+            jmp QUIT_CODE
+        .else
+            jmp GOTO_INTRO
+        .endif
+    .elseif ah == KEY_UP_CODE
+        .if game_curr_state == GAME_STATE_PLAYING
+            jmp MOVE_UP
+        .elseif game_curr_state == GAME_STATE_STAR
+            jmp MOVE_UP
+        .endif
+    .elseif ah == KEY_DOWN_CODE
+        .if game_curr_state == GAME_STATE_PLAYING
+            jmp MOVE_DOWN
+        .elseif game_curr_state == GAME_STATE_STAR
+            jmp MOVE_DOWN
+        .endif
+    .elseif ah == KEY_SPACE_CODE
+        .if game_curr_state == GAME_STATE_PLAYING
+            jmp espaco
+        .endif
+    .else
+        jmp nokey
+    .endif
 
  MOVE_UP: 
     ;nave vai uma posição para a esquerda se não estiver do lado da parede
@@ -85,10 +162,10 @@ leTecla PROC
     call criaTiro
     jmp nokey
  QUIT_CODE:
-    mov game_curr_state, GAME_STATE_QUIT
-    mov edx, OFFSET game_title
-    INVOKE WriteString
-    
+    mov game_curr_state, GAME_STATE_QUIT    
+    jmp nokey
+ GOTO_INTRO:
+    mov game_curr_state, GAME_STATE_INTRO
   nokey:      
     ret
 leTecla ENDP
@@ -168,11 +245,11 @@ verificaColisaoParede PROC USES ecx esi, array:DWORD, len:DWORD
         mov esi, 0
     L1:
         cmp (COORD PTR [eax + esi * TYPE COORD]).X, 0
-        jne inimigoSemColisao
+        jne SemColisao
         mov eax, esi
         mov ebx, 1
         jmp QUIT
-    inimigoSemColisao:
+    SemColisao:
         inc esi
         loop L1
     .endif
@@ -181,28 +258,21 @@ verificaColisaoParede PROC USES ecx esi, array:DWORD, len:DWORD
 verificaColisaoParede ENDP
 
 verificaColisaoParedeTiro PROC
-         movzx ecx, numTiros
-        .if ecx > 0
-            mov esi, 0
-            L1:
-            cmp tiro_curr_pos[esi * TYPE COORD].X, 79
-                jb tiroSemColisao
-            
-            ;tiro colidiu com a parede    
-            ;movzx edx, numTiros
-            ;dec edx
-            ;mov ax, tiro_curr_pos[edx  * TYPE COORD].X
-            ;mov tiro_curr_pos[esi  * TYPE COORD].X , ax
-            ;mov ax, tiro_curr_pos[edx  * TYPE COORD].Y
-            ;mov tiro_curr_pos[esi  * TYPE COORD].Y , ax
-            dec numTiros
+    movzx ecx, numTiros
+    .if ecx > 0
+        mov esi, 0
+        L1:
+        cmp tiro_curr_pos[esi * TYPE COORD].X, 79
+            jb tiroSemColisao
+        
+        dec numTiros
 
-            tiroSemColisao:
-            inc esi
-            loop L1
+        tiroSemColisao:
+        inc esi
+        loop L1
 
-         .endif
-         ret
+    .endif
+    ret
 verificaColisaoParedeTiro ENDP
 
 level_reset PROC USES ecx esi eax
@@ -219,6 +289,12 @@ level_reset PROC USES ecx esi eax
     mov game_curr_state, GAME_STATE_PLAYING
     ret
 level_reset ENDP
+
+game_reset PROC
+    mov game_level_curr, 0
+    call level_reset
+    ret
+game_reset ENDP
 
 ;COLISAO
 ; ebx = 0 se não teve colisão
@@ -310,24 +386,47 @@ verificaColisaoTiroInimigo PROC
     ret
 verificaColisaoTiroInimigo ENDP
 
-checkStarAnswer PROC idx:DWORD
-    .if idx == 0
-        mov game_curr_state, GAME_STATE_QUIT
+next_level PROC
+    inc game_level_curr
+    .if game_level_curr == MAX_LEVELS
+        mov game_curr_state, GAME_STATE_ARCOMP
     .else
         call level_reset
+        mov game_curr_state, GAME_STATE_PLAYING
+    .endif
+    ret
+next_level ENDP
+
+checkStarAnswer PROC USES eax idx:DWORD
+    mov eax, OFFSET OPS
+    add eax, idx
+    mov al, BYTE PTR [eax]
+    .if game_level_question.OP == al
+        call next_level
+    .else
+        mov game_curr_state, GAME_STATE_LOSE_STAR
     .endif
     ret
 checkStarAnswer ENDP
 
+mRemoveInimigo MACRO
+    .if ebx == 1
+        INVOKE removeInimigo, eax
+    .endif
+ENDM
+
 verificaColisoes PROC USES ebx eax
     .if game_curr_state == GAME_STATE_PLAYING
+        call verificaColisaoParedeTiro
+        call verificaColisaoTiroInimigo
+        mRemoveInimigo
+
         INVOKE verificaColisaoParede, OFFSET inimigo_curr_pos, numInimigos
-        .if ebx == 1
-            INVOKE removeInimigo, eax
-        .endif
+        mRemoveInimigo
         INVOKE verificaColisaoJogador, OFFSET inimigo_curr_pos, numInimigos
+        mRemoveInimigo
         .if ebx == 1
-            INVOKE removeInimigo, eax
+            mov game_curr_state, GAME_STATE_LOSE_COLLISION
         .endif
     .elseif game_curr_state == GAME_STATE_STAR
         INVOKE verificaColisaoJogador, OFFSET star_curr_pos, NUM_STARS
@@ -351,6 +450,7 @@ atualizarEstados PROC
 
     .if game_level_remaining_enemies == 0
         .if game_curr_state == GAME_STATE_PLAYING
+            call game_level_calculate_star_question
             mov game_curr_state, GAME_STATE_STAR
         .endif
     .endif
@@ -364,15 +464,10 @@ atualizarEstados ENDP
 ; @param game_curr_state - variável global
 ;;
 game_loop PROC
-    call game_level_calculate_remaining_enemies
-
 MAIN_LOOP:
+    call ClearBuffer
+
     call atualizarEstados
-    call verificaColisaoParedeTiro
-    call verificaColisaoTiroInimigo
-    .if ebx == 1
-        INVOKE removeInimigo, eax
-    .endif
     call atualizaTela
     call game_print
 
@@ -383,4 +478,4 @@ MAIN_LOOP:
     call ClrScr
 
     ret
-game_loop ENDP
+game_loop ENDP 

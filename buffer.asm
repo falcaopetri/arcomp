@@ -190,13 +190,18 @@ fim:
 desenhaTiro ENDP
 
 ;DESENHA ESTRELA
-desenhaEstrelas PROC USES ecx esi eax
+desenhaEstrelas PROC USES ecx esi eax ebx
     mov ecx, NUM_STARS
     mov esi, 0
+    mov ebx, 0
 L1:
     INVOKE insertRegionIntoBuffer, OFFSET star, star_dimension, star_curr_pos[esi]
+    mov eax, OFFSET OPS
+    add eax, ebx
+    INVOKE insertRegionIntoBuffer, eax, digit_dimension, star_curr_pos[esi]
     dec star_curr_pos[esi].X
     add esi, TYPE COORD
+    inc ebx
 
     
     loop L1
@@ -215,7 +220,29 @@ desenhaIntro PROC
     ret
 desenhaIntro ENDP
 
-;DESENHA INTRO
+;DESENHA ARCOMP
+desenhaArcomp PROC
+    call ClearBuffer
+    INVOKE insertRegionIntoBufferWithColor, OFFSET intro_img1, OFFSET intro_color1, intro_dimension, intro_pos1
+    INVOKE insertRegionIntoBufferWithColor, OFFSET intro_img2, OFFSET intro_color1, intro_dimension, intro_pos2
+    ;INVOKE insertRegionIntoBufferWithColor, OFFSET intro_img3, OFFSET intro_color1, intro_dimension, intro_pos3
+    ;INVOKE insertRegionIntoBufferWithColor, OFFSET intro_img4, OFFSET intro_color1, intro_dimension, intro_pos4
+    INVOKE insertRegionIntoBufferWithColor, OFFSET intro_img5, OFFSET intro_color1, intro_dimension, intro_pos5
+    ret
+desenhaArcomp ENDP
+
+;DESENHA Lose
+desenhaLose PROC
+    call ClearBuffer
+    INVOKE insertRegionIntoBufferWithColor, OFFSET intro_img1, OFFSET intro_color1, intro_dimension, intro_pos1
+    INVOKE insertRegionIntoBufferWithColor, OFFSET intro_img2, OFFSET intro_color1, intro_dimension, intro_pos2
+    ;INVOKE insertRegionIntoBufferWithColor, OFFSET intro_img3, OFFSET intro_color1, intro_dimension, intro_pos3
+    INVOKE insertRegionIntoBufferWithColor, OFFSET intro_img4, OFFSET intro_color1, intro_dimension, intro_pos4
+    ;INVOKE insertRegionIntoBufferWithColor, OFFSET intro_img5, OFFSET intro_color1, intro_dimension, intro_pos5
+    ret
+desenhaLose ENDP
+
+;DESENHA INSTRU
 desenhaInstrucao PROC
     call ClearBuffer
     INVOKE insertRegionIntoBuffer, OFFSET instru_img1, instru_dimension, instru_pos1
@@ -227,7 +254,7 @@ desenhaInstrucao PROC
 desenhaInstrucao ENDP
 
 
-;DESENHA MUINICAO DISPONIVEL
+;DESENHA MUNICAO DISPONIVEL
 desenhaMunicao PROC
     movzx ecx, num_max_tiros
     movzx eax, numTiros
@@ -238,22 +265,62 @@ desenhaMunicao PROC
     .endif
     ret
 desenhaMunicao ENDP
+
+desenhaLevel PROC
+    INVOKE insertRegionIntoBuffer, OFFSET level, level_dimension, level_pos
+    push eax
+    mov al, game_level_curr
+    mov digit, al
+    pop eax
+    add digit, '0'
+    INVOKE insertRegionIntoBuffer, OFFSET digit, digit_dimension, digit_pos
+    ret
+desenhaLevel ENDP
+
+desenhaPergunta PROC
+    INVOKE insertRegionIntoBuffer, OFFSET game_level_question, digit_dimension, pergunta_pos
+    add pergunta_pos.X, 2
+    INVOKE insertRegionIntoBuffer, OFFSET QUESTION, digit_dimension, pergunta_pos
+    add pergunta_pos.X, 2
+    INVOKE insertRegionIntoBuffer, OFFSET game_level_question.B, digit_dimension, pergunta_pos
+    add pergunta_pos.X, 2
+    INVOKE insertRegionIntoBuffer, OFFSET EQUAL, digit_dimension, pergunta_pos
+    add pergunta_pos.X, 2
+    INVOKE insertRegionIntoBuffer, OFFSET game_level_question.R, digit_dimension, pergunta_pos
+    sub pergunta_pos.X, 8   
+    ret
+desenhaPergunta ENDP
+
+desenhaInfo PROC
+    .if game_curr_state == GAME_STATE_PLAYING
+        call desenhaMunicao
+    .elseif game_curr_state == GAME_STATE_STAR
+        call desenhaPergunta
+    .endif
+    call desenhaLevel
+    ret
+desenhaInfo ENDP
+
 ; Atualiza tela
 atualizaTela PROC
-    mov edx, 0
-    call gotoXY
-    
-    call ClearBuffer
     call desenhaNave
     
     .if game_curr_state == GAME_STATE_PLAYING
         call desenhaInimigo
         call desenhaTiro
-        call desenhaMunicao
+        call desenhaInfo
     .elseif game_curr_state == GAME_STATE_STAR
        call desenhaEstrelas
+       call desenhaInfo
+    .elseif game_curr_state == GAME_STATE_ARCOMP
+        call desenhaArcomp
+    .elseif game_curr_state == GAME_STATE_LOSE_STAR
+        call desenhaLose
+    .elseif game_curr_state == GAME_STATE_INTRO
+        call desenhaIntro   
+    .elseif game_curr_state == GAME_STATE_INSTRU
+	    call desenhaInstrucao
     .endif
-    ;call desenhaMoldura
  
     ret
 atualizaTela ENDP

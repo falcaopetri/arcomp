@@ -1,7 +1,12 @@
-GAME_STATE_QUIT = 1                          ; encerrar o jogo
-GAME_STATE_MENU_MAIN = 2                     ; mostrar menu principal
-GAME_STATE_PLAYING = 3                     ; jogando
-GAME_STATE_STAR = 4                     ; respondendo pergunta
+GAME_STATE_QUIT = 1                         ; encerrar o jogo
+;GAME_STATE_MENU_MAIN = 2                    ; mostrar menu principal
+GAME_STATE_PLAYING = 3                     	; jogando
+GAME_STATE_STAR = 4                     	; respondendo pergunta
+GAME_STATE_ARCOMP = 5 						; jogo completo
+GAME_STATE_LOSE_STAR = 6 					; lose por errar a estrela
+GAME_STATE_LOSE_COLLISION = GAME_STATE_LOSE_STAR		; lose por colisão
+GAME_STATE_INTRO = 8		; mostrar intro
+GAME_STATE_INSTRU = 9		; mostrar instru
 
 COLS = 80               ; number of columns
 ROWS = 25               ; number of rows
@@ -12,17 +17,32 @@ DELAY_BETWEEN_SPAWNS = 700
 
 KEY_UP_CODE = 48h
 KEY_DOWN_CODE = 50h
-KEY_SPACE_CODE = 57
+KEY_SPACE_CODE = 39h
 KEY_ESC_CODE = 1Bh
+KEY_ENTER_CODE = 0Dh
 
-MAX_LEVELS = 10
+MAX_LEVELS = 2
 
 .data
 
+OPS BYTE '+', '-', '*'
+QUESTION BYTE '?'
+EQUAL BYTE '='
+
+STAR_QUESTION STRUCT
+	A BYTE '0'
+	B BYTE '0'
+	R BYTE '0'
+	OP BYTE '0'
+STAR_QUESTION ENDS
+pergunta_pos COORD <40, 1>
+
+game_level_question STAR_QUESTION <>
+
 game_title BYTE "ARCOMP", 0
 last_spawn DWORD 0
-game_curr_state DWORD GAME_STATE_PLAYING
-game_level_curr BYTE 1
+game_curr_state DWORD GAME_STATE_INTRO
+game_level_curr BYTE 0
 game_level_remaining_enemies DWORD ?
 
 console HANDLE 0
@@ -54,14 +74,20 @@ numTiros BYTE 0
 num_max_tiros BYTE 1
 tiro_curr_pos COORD <1,1>
 tiro_dimension COORD <1, 1>
-tiro BYTE "o",
+tiro BYTE "o"
 
 ;todo mudar desenho de tiro disponivel?
 ;municao
 municao_curr_pos COORD <1,1>
 municao_dimension COORD <10, 1>
-municao BYTE "DISPONIVEL",
+municao BYTE "DISPONIVEL"
 
+level BYTE "Level: "
+level_dimension COORD <7, 1>
+level_pos COORD <20, 1> 
+digit BYTE ?
+digit_dimension COORD <1, 1>
+digit_pos COORD <27, 1>
 
 ;desenho do inimigo
 ;variaveis dos inimigos
