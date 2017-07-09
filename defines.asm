@@ -86,6 +86,7 @@ tiro BYTE "o"
 ;municao
 municao_curr_pos COORD <1,1>
 municao_dimension COORD <10, 1>
+municao_color WORD 10 DUP(1 DUP(00E0h))
 municao BYTE "DISPONIVEL"
 
 level BYTE "Level: "
@@ -100,7 +101,7 @@ digit_pos COORD <27, 1>
 numInimigos BYTE 0
 NUM_MAX_INIMIGOS = 3
 inimigo_curr_pos COORD NUM_MAX_INIMIGOS DUP (<20,20>)
-
+inimigo_color WORD 11 DUP(6 DUP(000Dh))
 inimigo_dimension COORD <11, 6>
 inimigo BYTE 	"  _....._  ",
 				".'     - `.",
@@ -111,20 +112,22 @@ inimigo BYTE 	"  _....._  ",
 
 ;desenho da estrela
 ;variaveis das estrelas
+resposta_curr_pos COORD <1,1>
+resposta_color WORD 1 DUP(1 DUP(000Ah))
 NUM_STARS = 3
 star_initial_pos COORD <60, 0>, <60, 10>, <60, 20>
 star_curr_pos COORD <60, 0>, <60, 10>, <60, 20>
-star_dimension COORD <9, 5>
-star BYTE 	"    |\   ",
-			"|\  | \  ",
-			"|===== )>",
-			"|/  | /  ",
-			"    |/   "
-
-
+star_dimension COORD <7, 4>
+star_color WORD 4 DUP(7 DUP(000Eh))
+star BYTE 	"__/ \__",
+			"\     /",
+			"/_   _\",
+			"  \ /  "
+ 
 ;explosao
 explosao_curr_pos COORD NUM_MAX_INIMIGOS DUP (<20,20>)
 explosao_dimension COORD <13, 6>
+explosao_color WORD 13 DUP(6 DUP(000Ch))
 explosao BYTE "   \  |  /   ",
 			  "  .-^~~~^-.  ",
 		      " .~  ,     ~.",
@@ -181,11 +184,11 @@ intro_pos4 COORD <0, 15>
 intro_pos5 COORD <0, 20>
 intro_dimension COORD <67, 5>
 
-intro_color1 WORD 4 DUP(67 DUP(0004h))
-intro_color2 WORD 4 DUP(67 DUP(0004h))
-intro_color3 WORD 4 DUP(67 DUP(0007h))
-intro_color4 WORD 4 DUP(67 DUP(0007h))
-intro_color5 WORD 4 DUP(67 DUP(0007h))
+intro_color1 WORD 5 DUP(67 DUP(0002h))
+intro_color2 WORD 5 DUP(67 DUP(0002h))
+intro_color3 WORD 5 DUP(67 DUP(0002h))
+intro_color4 WORD 5 DUP(67 DUP(0002h))
+intro_color5 WORD 5 DUP(67 DUP(0002h))
 
 intro_img1 BYTE 	"    ______________________________________________________________ ",
 					"   /                                                              \",
@@ -208,6 +211,88 @@ intro_img4 BYTE 	"  |   |                                          Antonio     |
 					"  |   |                                                      |    |",
 					"  |   |                                                      |    |"
 intro_img5 BYTE 	"  |   |           PRESSIONE ENTER PARA CONTINUAR             |    |",
+					"  |   |______________________________________________________|    |",
+					"  |                                                               |",
+					"   \______________________________________________________________/",
+		 			"         \________________________________________________/        "
+
+
+
+
+lose_pos1 COORD <0, 0>
+lose_pos2 COORD <0, 5>
+lose_pos3 COORD <0, 10>
+lose_pos4 COORD <0, 15>
+lose_pos5 COORD <0, 20>
+lose_dimension COORD <67, 5>
+
+lose_color1 WORD 5 DUP(67 DUP(0004h))
+lose_color2 WORD 5 DUP(67 DUP(0004h))
+lose_color3 WORD 5 DUP(67 DUP(0004h))
+lose_color4 WORD 5 DUP(67 DUP(0004h))
+lose_color5 WORD 5 DUP(67 DUP(0004h))
+
+lose_img1 BYTE 	    "    ______________________________________________________________ ",
+					"   /                                                              \",
+					"  |    ______________________________________________________     |",
+					"  |   |                                                      |    |",
+					"  |   |   _____                         ____                 |    |"
+lose_img2 BYTE 	    "  |   |  / ____|                       / __ \                |    |",
+					"  |   | | |  __  __ _ _ __ ___   ___  | |  | |_   _____ _ __ |    |",
+					"  |   | | | |_ |/ _` | '_ ` _ \ / _ \ | |  | \ \ / / _ \ '__||    |",
+					"  |   | | |__| | (_| | | | | | |  __/ | |__| |\ V /  __/ |   |    |",
+					"  |   |  \_____|\__,_|_| |_| |_|\___|  \____/  \_/ \___|_|   |    |"
+lose_img3 BYTE   	"  |   |                                                      |    |",
+					"  |   |                                                      |    |",
+					"  |   |                                                      |    |",
+					"  |   |                                                      |    |",
+					"  |   |                                                      |    |"
+lose_img4 BYTE 	    "  |   |                                          Antonio     |    |",
+					"  |   |                                          Jose Vitor  |    |",
+					"  |   |                                          Thiago      |    |",
+					"  |   |                                                      |    |",
+					"  |   |                                                      |    |"
+lose_img5 BYTE 	    "  |   |                                                      |    |",
+					"  |   |______________________________________________________|    |",
+					"  |                                                               |",
+					"   \______________________________________________________________/",
+		 			"         \________________________________________________/        "
+
+
+arcomp_pos1 COORD <0, 0>
+arcomp_pos2 COORD <0, 5>
+arcomp_pos3 COORD <0, 10>
+arcomp_pos4 COORD <0, 15>
+arcomp_pos5 COORD <0, 20>
+arcomp_dimension COORD <67, 5>
+
+arcomp_color1 WORD 5 DUP(67 DUP(000Bh))
+arcomp_color2 WORD 5 DUP(67 DUP(000Bh))
+arcomp_color3 WORD 5 DUP(67 DUP(000Bh))
+arcomp_color4 WORD 5 DUP(67 DUP(000Bh))
+arcomp_color5 WORD 5 DUP(67 DUP(000Bh))
+
+arcomp_img1 BYTE 	"    ______________________________________________________________ ",
+					"   /                                                              \",
+					"  |    ______________________________________________________     |",
+					"  |   |                                                      |    |",
+					"  |   |       _____                _                         |    |"
+arcomp_img2 BYTE    "  |   |      |  __ \              | |                        |    |",
+					"  |   |      | |__) |_ _ _ __ __ _| |__   ___ _ __  ___      |    |",
+					"  |   |      |  ___/ _` | '__/ _` | '_ \ / _ \ '_ \/ __|     |    |",
+					"  |   |      | |  | (_| | | | (_| | |_) |  __/ | | \__ \     |    |",
+					"  |   |      |_|   \__,_|_|  \__,_|_.__/ \___|_| |_|___/     |    |"
+arcomp_img3 BYTE   	"  |   |                                                      |    |",
+					"  |   |                                                      |    |",
+					"  |   |                     ,MMM8&&&.                        |    |",
+					"  |   |                _...MMMMM88&&&&..._                   |    |",
+					"  |   |             .::'''MMMMM88&&&&&&'''::.                |    |"
+arcomp_img4 BYTE    "  |   |            ::     MMMMM88&&&&&&     ::               |    |",
+					"  |   |            '::....MMMMM88&&&&&&....::'               |    |",
+					"  |   |               `''''MMMMM88&&&&''''`                  |    |",
+					"  |   |                     'MMM8&&&                         |    |",
+					"  |   |                                                      |    |"
+arcomp_img5 BYTE    "  |   |                                                      |    |",
 					"  |   |______________________________________________________|    |",
 					"  |                                                               |",
 					"   \______________________________________________________________/",

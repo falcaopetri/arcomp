@@ -153,7 +153,8 @@ desenhaInimigo PROC USES ecx esi eax
     je fim
     mov esi, 0
 L1:
-    INVOKE insertRegionIntoBuffer, OFFSET inimigo, inimigo_dimension, inimigo_curr_pos[esi]
+    ;INVOKE insertRegionIntoBuffer, OFFSET inimigo, inimigo_dimension, inimigo_curr_pos[esi]
+    INVOKE insertRegionIntoBufferWithColor, OFFSET inimigo, OFFSET inimigo_color, inimigo_dimension, inimigo_curr_pos[esi]
     dec inimigo_curr_pos[esi].X
     add esi, TYPE COORD
 
@@ -190,10 +191,22 @@ desenhaEstrelas PROC USES ecx esi eax ebx
     mov esi, 0
     mov ebx, 0
 L1:
-    INVOKE insertRegionIntoBuffer, OFFSET star, star_dimension, star_curr_pos[esi]
+    ;INVOKE insertRegionIntoBuffer, OFFSET star, star_dimension, star_curr_pos[esi]
+    INVOKE insertRegionIntoBufferWithColor, OFFSET star, OFFSET star_color, star_dimension, star_curr_pos[esi]
     mov eax, OFFSET OPS
     add eax, ebx
-    INVOKE insertRegionIntoBuffer, eax, digit_dimension, star_curr_pos[esi]
+   
+    push edx
+    mov dx, star_curr_pos[esi].X
+    add dx,2
+    mov resposta_curr_pos.X, dx
+
+    mov dx, star_curr_pos[esi].Y
+    add dx,1
+    mov resposta_curr_pos.Y, dx
+    pop edx
+
+    INVOKE insertRegionIntoBufferWithColor, eax,OFFSET resposta_color, digit_dimension, resposta_curr_pos
     dec star_curr_pos[esi].X
     add esi, TYPE COORD
     inc ebx
@@ -210,10 +223,10 @@ desenhaEstrelas ENDP
 desenhaIntro PROC
     call ClearBuffer
     INVOKE insertRegionIntoBufferWithColor, OFFSET intro_img1, OFFSET intro_color1, intro_dimension, intro_pos1
-    INVOKE insertRegionIntoBufferWithColor, OFFSET intro_img2, OFFSET intro_color1, intro_dimension, intro_pos2
-    INVOKE insertRegionIntoBufferWithColor, OFFSET intro_img3, OFFSET intro_color1, intro_dimension, intro_pos3
-    INVOKE insertRegionIntoBufferWithColor, OFFSET intro_img4, OFFSET intro_color1, intro_dimension, intro_pos4
-    INVOKE insertRegionIntoBufferWithColor, OFFSET intro_img5, OFFSET intro_color1, intro_dimension, intro_pos5
+    INVOKE insertRegionIntoBufferWithColor, OFFSET intro_img2, OFFSET intro_color2, intro_dimension, intro_pos2
+    INVOKE insertRegionIntoBufferWithColor, OFFSET intro_img3, OFFSET intro_color3, intro_dimension, intro_pos3
+    INVOKE insertRegionIntoBufferWithColor, OFFSET intro_img4, OFFSET intro_color4, intro_dimension, intro_pos4
+    INVOKE insertRegionIntoBufferWithColor, OFFSET intro_img5, OFFSET intro_color5, intro_dimension, intro_pos5
     ret
 desenhaIntro ENDP
 
@@ -222,11 +235,11 @@ desenhaIntro ENDP
 ;;
 desenhaArcomp PROC
     call ClearBuffer
-    INVOKE insertRegionIntoBufferWithColor, OFFSET intro_img1, OFFSET intro_color1, intro_dimension, intro_pos1
-    INVOKE insertRegionIntoBufferWithColor, OFFSET intro_img2, OFFSET intro_color1, intro_dimension, intro_pos2
-    ;INVOKE insertRegionIntoBufferWithColor, OFFSET intro_img3, OFFSET intro_color1, intro_dimension, intro_pos3
-    ;INVOKE insertRegionIntoBufferWithColor, OFFSET intro_img4, OFFSET intro_color1, intro_dimension, intro_pos4
-    INVOKE insertRegionIntoBufferWithColor, OFFSET intro_img5, OFFSET intro_color1, intro_dimension, intro_pos5
+    INVOKE insertRegionIntoBufferWithColor, OFFSET arcomp_img1, OFFSET arcomp_color1, arcomp_dimension, arcomp_pos1
+    INVOKE insertRegionIntoBufferWithColor, OFFSET arcomp_img2, OFFSET arcomp_color2, arcomp_dimension, arcomp_pos2
+    INVOKE insertRegionIntoBufferWithColor, OFFSET arcomp_img3, OFFSET arcomp_color3, arcomp_dimension, arcomp_pos3
+    INVOKE insertRegionIntoBufferWithColor, OFFSET arcomp_img4, OFFSET arcomp_color4, arcomp_dimension, arcomp_pos4
+    INVOKE insertRegionIntoBufferWithColor, OFFSET arcomp_img5, OFFSET arcomp_color5, arcomp_dimension, arcomp_pos5
     ret
 desenhaArcomp ENDP
 
@@ -235,11 +248,11 @@ desenhaArcomp ENDP
 ;;
 desenhaLose PROC
     call ClearBuffer
-    INVOKE insertRegionIntoBufferWithColor, OFFSET intro_img1, OFFSET intro_color1, intro_dimension, intro_pos1
-    INVOKE insertRegionIntoBufferWithColor, OFFSET intro_img2, OFFSET intro_color1, intro_dimension, intro_pos2
-    ;INVOKE insertRegionIntoBufferWithColor, OFFSET intro_img3, OFFSET intro_color1, intro_dimension, intro_pos3
-    INVOKE insertRegionIntoBufferWithColor, OFFSET intro_img4, OFFSET intro_color1, intro_dimension, intro_pos4
-    ;INVOKE insertRegionIntoBufferWithColor, OFFSET intro_img5, OFFSET intro_color1, intro_dimension, intro_pos5
+    INVOKE insertRegionIntoBufferWithColor, OFFSET lose_img1, OFFSET lose_color1, lose_dimension, lose_pos1
+    INVOKE insertRegionIntoBufferWithColor, OFFSET lose_img2, OFFSET lose_color2, lose_dimension, lose_pos2
+    INVOKE insertRegionIntoBufferWithColor, OFFSET lose_img3, OFFSET lose_color3, lose_dimension, lose_pos3
+    INVOKE insertRegionIntoBufferWithColor, OFFSET lose_img4, OFFSET lose_color4, lose_dimension, lose_pos4
+    INVOKE insertRegionIntoBufferWithColor, OFFSET lose_img5, OFFSET lose_color5, lose_dimension, lose_pos5
     ret
 desenhaLose ENDP
 
@@ -265,7 +278,8 @@ desenhaMunicao PROC
     movzx eax, numTiros
     .if ecx > 0   
     .if eax < 1 
-        INVOKE insertRegionIntoBuffer, OFFSET municao, municao_dimension, municao_curr_pos
+        ;INVOKE insertRegionIntoBuffer, OFFSET municao, municao_dimension, municao_curr_pos
+        INVOKE insertRegionIntoBufferWithColor, OFFSET municao, OFFSET municao_color, municao_dimension, municao_curr_pos
     .endif
     .endif
     ret

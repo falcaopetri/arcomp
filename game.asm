@@ -238,7 +238,8 @@ removeInimigo PROC USES edx esi eax ebx, idx:DWORD
     mov explosao_curr_pos.X, bx
     mov bx,  inimigo_curr_pos[esi  * TYPE COORD].Y
     mov explosao_curr_pos.Y, bx
-    INVOKE insertRegionIntoBuffer, OFFSET explosao, explosao_dimension, explosao_curr_pos
+    ;INVOKE insertRegionIntoBuffer, OFFSET explosao, explosao_dimension, explosao_curr_pos
+    INVOKE insertRegionIntoBufferWithColor, OFFSET explosao, OFFSET explosao_color, explosao_dimension, explosao_curr_pos
 
     dec edx
     mov ax, inimigo_curr_pos[edx  * TYPE COORD].X
